@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>README</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+
+    <style>
+      .va {
+  display: flex;
+  align-items: center;
+}
+
+.hero,
+.cta {
+  background: url(data:https://i.imgur.com/dp0U5ET.jpg);
+}
+
+.cta {
+  height: 500px;
+  border-top: 10px solid turquoise;
+}
+
+footer {
+  color: white;
+  background: rgb(247, 40, 40) !important;
+}
+
+footer strong {
+  color: turquoise;
+}
+
+footer a {
+  color: turquoise;
+}
+
+.title {
+  color: white;
+  font-weight: 800;
+  font-size: 4rem;
+  font-family: 'Nunito Sans', sans-serif;
+  text-shadow: 1px 1px 1px #000, 3px 3px 5px rgb(0, 0, 3);
+}
+
+hr.content-divider {
+  max-width: 75px;
+  height: 5px;
+}
+
+#parallax-1 {
+  background: url(https://i.imgur.com/dp0U5ET.jpg);
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+#parallax-1 hr {
+  background: rgb(255, 255, 255);
+}
+
+.label {
+  color: white;
+}
+
+input {
+  background: transparent !important;
+  border: 1px solid turquoise !important;
+  color: white !important;
+}
+
+input::placeholder {
+  color: white !important;
+}
+    </style>
+
+</head>
+  <body>
+
+    <!-- Navbar -->
+    <nav class="navbar is-dark is-fixed-top" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="https://bulma.io">
+          <img src="https://i.imgur.com/BJKCq3G.png" width="112" height="28">
+        </a>
+        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+      <div id="navbarBasicExample" class="navbar-menu">
+        <div class="navbar-start">
+          <a href="README.html" class="navbar-item">
+            Home
+          </a>
+          <a href="README.html#introduction" class="navbar-item">
+            Introduction
+          </a>
+          <a href="README.html#Prerequisite" class="navbar-item">
+            Prerequisite
+          </a>
+          <a href="README.html#setup" class="navbar-item">
+            Setup & First-Time Run
+          </a>
+          <a href="README.html#advconfig" class="navbar-item">
+            Advanced Configuration
+          </a>
+          <a href="README.html#folder" class="navbar-item">
+            Folder Structure
+          </a>
+          <a href="README.html#troubleshooting" class="navbar-item">
+            Application Troubleshooting
+          </a>
+        </div>
+    
+        <div class="navbar-end">
+          <div class="navbar-item">
+          </div>
+        </div>
+      </div>
+    </nav>
+    <!-- Hero -->
+    <section id="parallax-1" class="hero is-fullheight ">
+          <div class="hero-body">
+            <div class="container">
+            <div class="columns">
+              <div class="column is-6 is-offset-0">
+                <h1 class="title is-1">README</h1>
+                <hr class="content-divider">
+                <h2 class="subtitle" style="color: white; font-size: 1.2rem; text-shadow: 1px 1px 1px #000, 3px 3px 5px rgb(0, 0, 3);">README for MyQ & ParentPay Payment Gateway</h2>
+                <h2 class="subtitle" style="color: white; font-size: 1.2rem; text-shadow: 1px 1px 1px #000, 3px 3px 5px rgb(0, 0, 3);">Designed and built by Jack Barnard</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div class="container">
+        <section class="articles" id="introduction">
+            <div class="column is-8 is-offset-2">
+                <div class="card article">
+                    <div class="card-content">
+                        <div class="media">
+                            <div class="media-content has-text-centered">
+                                <p class="subtitle is-1 article-title">Payment Gateway - What is it?</p>
+                                <div class="tags has-addons level-item">
+                                    <span class="tag is-rounded">Payment Gateway</span>
+                                    <span class="tag is-rounded is-info">v1.0.624.1</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="content article-body">
+                          <p>With the ever-increasing number of Schools and education institues becoming concious of there print usage, print management software such as MyQ are becoming increasingly more popular. With this increase, the need for integration with alredy existing software such as ParentPay becomes ever more demanding.</p><br>
+                          <p>Therefore this Payment Gateway has been built has a middle ground, allowing the integration of ParentPay and MyQ to work seemlessly together to migrate payment data and print credits together. The connector acts as a middle-man, sitting on a customers server and connecting regulary to both ParentPay and MyQ using provided credentials, downloading a list of users from ParentPay as well as searching for users via MyQ or other means.</p>
+                        
+                          <p class="subtitle is-4">Technology</p>
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th>Technology</th>
+                                <th>Version</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr class="is-selected">
+                                <td><a href="https://dotnet.microsoft.com/en-us/download/dotnet-framework/net472">.NET Framework</a></td>
+                                <td>v4.7.2</td>
+                              </tr>
+                              <tr>
+                                <td><a href="https://flurl.dev/">Flurl</a></td>
+                                <td>v3.0.7</td>
+                              </tr>
+                              <tr>
+                                <td><a href="https://flurl.dev">Flurl.Http</a></td>
+                                <td>v3.2.4</td>
+                              </tr>
+                              <tr>
+                                <td><a href="http://www.mimekit.net/">MailKit</a></td>
+                                <td>v3.6.0</td>
+                              </tr>
+                              <tr>
+                                <td><a href="http://www.mimekit.net/">MimeKit</a></td>
+                                <td>v3.6.0</td>
+                              </tr>
+                              <tr>
+                                <td><a href="https://www.microsoft.com/en-gb/download/details.aspx?id=30709">Microsoft.SqlServer.Compact</a></td>
+                                <td>v4.0.8876.1</td>
+                              </tr>
+                              <tr>
+                                <td><a href="https://www.newtonsoft.com/json">Newtonsoft.Json</a></td>
+                                <td>v13.0.3</td>
+                              </tr>
+                              <tr>
+                                <td><a href="https://nlog-project.org/">NLog</a></td>
+                                <td>v5.1.2</td>
+                              </tr>
+                              <tr>
+                                <td><a href="https://github.com/NLog/NLog.MailKit">NLog.MailKit</a></td>
+                                <td>v5.0.0</td>
+                              </tr>
+                              <tr>
+                                <td><a href="https://www.bouncycastle.org/csharp/">Portable.BouncyCastle</a></td>
+                                <td>v1.9.0</td>
+                              </tr>
+                              <tr>
+                                <td><a href="https://github.com/icsharpcode/SharpZipLib">SharpZipLib</a></td>
+                                <td>v1.4.2</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          <p class="subtitle is-4">Functionality</p>
+                          <ul>
+                            <li>Advanced logging</li>
+                            <li>User retrival (MyQ Username/Active Directory/AzureAD)</li>
+                            <li>Certificate Validation/Installiation</li>
+                            <li>Custom TLS Protocol</li>
+                            <li>Use of Hostname/IP address</li>
+                            <li>Automatic MyQ Token generation</li>
+                            <li>Periodic ParentPay Till balance update</li>
+                            <li>Periodic MyQ Balance update</li>
+                            <li>Transaction tracking - Database integration</li>
+                            <li>Dynamic address whitelisting</li>
+                            <li>Generate support file upon crash</li>
+                          </ul>
+                        </div>
+                    </div>
+                </div>
+              </section>
+                <section class="articles" id="Prerequisite">
+                  <div class="column is-8 is-offset-2">
+                      <div class="card article">
+                          <div class="card-content">
+                              <div class="media">
+                                  <div class="media-content has-text-centered">
+                                      <p class="subtitle is-1 article-title">Prerequisite</p>
+                                      <div class="tags has-addons level-item">
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="content article-body">
+                                  <p>Before running the Payment Gateway, please make sure that the following requirements are met.</p>
+                                  <ul>
+                                    <li>You need to have a MyQ Server version 8.0 or later</li>
+                                    <li>You have enabled <strong><a href="https://docs.myq-solution.com/en/print-server/10.1/activation-and-setup">External Payment Providers</a></strong> in your MyQ server</li>
+                                    <li>You have added your ParentPay users to <strong>MyQ local credit account</strong> or <strong>Central credit account</strong></li>
+                                    <li>Your MyQ server needs to meet the <a href="https://docs.myq-solution.com/en/print-server/10.1/system-requirements">minimum requirements</a></li>
+                                    <li>You have installed the MyQ Certificate on the machine your server</li>
+                                    <li><strong>Your PC has NET Framework 4.7.2 or later installed</strong></li>
+                                  </ul>
+
+                                  <p>The following are a set of requirements that are not required for the use of the gateway but may be so depending upon your configuration.</p>
+                                  <ul>
+                                    <li>Your PC is domain joined</li>
+                                    <li>You have created a custom attribute in your active directory</li>
+                                    <li>You have created an extension attribute in your AzureAD</li>
+                                  </ul>
+                                  
+                                  <br>
+
+                                  <p class="subtitle is-4">User Search</p>
+                                  <p>
+                                    When retrieving user information from MyQ, the payment gateway offers 3x ways of retrieving user information.
+
+                                    <br><br><strong>MyQ Username: </strong>Uses the <strong>/v3/users/find</strong> endpoint of the MyQ API to search for a user by their username. 
+                                    This method requires that the username in MyQ match the consumer name used in ParentPay as both variables are compared with each 
+                                    other to determine if this is the correct user or not.
+                                  
+                                    <br><br><strong>LocalAD: </strong>Uses the <em>System.DirectoryServices.ActiveDirectory</em> libary to connect to your local active directory from the current machine. 
+                                    The program will then get the <em>User</em> active directory schema and iterate through its properties, looking for an attribute matching the one specified in the <em>Config.json</em>. 
+                                    If one is found, the value of that attribute is returned. 
+
+                                    <br><br><strong>AzureAD: </strong>Uses the Microsoft Graph API to connect to your Azure Active Directory. 
+                                    The system will use a pre-defined API request to request the <em>displayName</em> and <em>custom attribute</em> for the user returned. 
+                                    The user is searched for using the consumer name returned from ParentPay. This often includes a first and last name.
+                                  </p>
+                              </div>
+                          </div>
+                      </div>
+                    </div>
+                  </section>
+                  <section class="articles" id="setup">
+                    <div class="column is-8 is-offset-2">
+                        <div class="card article">
+                            <div class="card-content">
+                                <div class="media">
+                                    <div class="media-content has-text-centered">
+                                        <p class="subtitle is-1 article-title">Setup & First-Time Run</p>
+                                        <div class="tags has-addons level-item">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="content article-body">
+                                  <p>Once you meet all the minimum requirements and Prerequisites, the following steps can be undertaken to install and setup the appliation on a Windows Server</p>
+
+                                  <h1 class="subtitle is-4" style="color: red;">Notes</h1>
+                                  <p style="color: red;">
+                                    If the program does not detect a <em>Config.json</em> file, one will be generated in the 'InstallDirectory/Config' directory. This file can be configured by following the steps below.
+                                      <br><br>
+                                    Any <strong style="color: red;">Errors</strong> or <strong style="color: red;">Warnings</strong> will by default appear as yellow or purple text in the console window. Please note that these errors are likely due to a misconfiguration or missed out server config.
+                                  </p>
+
+                                  <ol type="1">
+                                    <li>Install the application using the provided installer</li>
+                                      <ol>
+                                        <li>In your MyQ server, create a REST API app. Guide <a href="https://docs.myq-solution.com/en/print-server/10.1/external-systems">here</a></li>
+                                        <li>Set the scope to <em>credit, users</em>. <strong>Don't forget to note down the clientid, secret</strong></li>
+                                      </ol>
+
+                                      <li>Fill in the MyQ section of the config with the details as you've just created.</li>
+                                    <ol>
+                                      <li>Enter the server address as listed <em>(This can be either hostname or IP address)</em>.</li>
+                                      <li>Fill in the ParentPay information accordingly, using your school credentials.</li>
+                                      <li>Enter the name of your school into the <em>InstallationName</em>.</li>
+                                      <li>Specify the TLS version to be used on external API calls.</li>
+                                    </ol>
+
+                                    <li>Once done, save the configuration and proceed to run the application.</li>
+
+                                  </ol>
+                                </div>
+                            </div>
+                        </div>
+                      </div>
+                    </section>
+                    <section class="articles" id="advconfig">
+                      <div class="column is-8 is-offset-2">
+                          <div class="card article">
+                              <div class="card-content">
+                                  <div class="media">
+                                      <div class="media-content has-text-centered">
+                                          <p class="subtitle is-1 article-title">Advanced Configuration</p>
+                                          <div class="tags has-addons level-item">
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="content article-body">
+                                    <p class="subtitle is-4">TLS Versions</p>
+                                      <p>Due to the various uses of different TLS protocols in todays IT enviroments, the application will support the use of various security protocols, including...</p>
+                                      <ul>
+                                        <li>TLS 1.0</li>
+                                        <li>TLS 1.1</li>
+                                        <li>TLS 1.2</li>
+                                        <li>TLS 1.3 <a href="https://dotnet.microsoft.com/en-us/download/dotnet-framework/net48">(Not Supported - Please use .NET 4.8 version)</a></li>
+                                      </ul><br>
+
+                                      <p>You can configure the application to use your chosen TLS protocol by setting it in the <em>config.json</em> file, using the <em>TLSVersion</em> variable.<br><br>
+                                      
+                                        Please see below for an example configuration of the TLSVersion variable for the configuration file.
+                                        
+                                    <br><strong>Example:</strong> TLS 1.2 > TLSVersion: 1.2</p>
+
+                                    <p class="subtitle is-4">Log-to-Email</p>
+                                      <p>The application also offers Log-to-Email functionality. 
+                                        This functionality, if configured will send an email with the details listed in the config.json containing information every time the application generates a Warning, Error or Fatal class log.
+                                          <br>
+                                        <p>This can helpful if you are an IT administrator who does not often spend alot of time at his desk, but want to keep a close eye on your system.</p>
+                                        <p>You can configure this by filling in the SMTP details in the <em>config.json</em> file, located in the installation directory.</p>
+                                      </p>
+
+                                    <p class="subtitle is-4">Logging</p>
+                                      <p>
+                                        The application offers advanced logging features that make it easy to catch errors early, before they become a problem. 
+                                        The application uses the NLog Framework capture logs and re-direct them to pre-defiend outputs such as the console window, log and error file outputs.
+                                        <br><br>
+                                        The application also contains functionality to allow users to toggle on/off excessive logging such as debug logging within the system.
+                                        You DO NOT need to configure this as it comes pre-configured with the application. However, you can alter/change the configuration from within the NLog.config file using the NLOG documentation <a href="https://github.com/nlog/nlog/wiki">here</a> 
+                                      </p>
+                                    <p class="subtitle is-4">Certificates</p>
+                                      <p>If your MyQ server is using a custom certificate authority, you can also use this with the payment gateway. Simply add the certificates distinguished name (DN) into the <em>Certificate_DistinguishedName</em> variable within the <em>config.json</em> and run the app.
+                                      When the app downloads and checks the certificate, it will vertify the variable mentioned and use the DN provided to check it against the certificate downloaded from the MyQ server.</p>
+                                  </div>
+                              </div>
+                          </div>
+                        </div>
+                      </section>
+                      <section class="articles" id="folder">
+                        <div class="column is-8 is-offset-2">
+                            <div class="card article">
+                                <div class="card-content">
+                                    <div class="media">
+                                        <div class="media-content has-text-centered">
+                                            <p class="subtitle is-1 article-title">Folder Structure</p>
+                                            <div class="tags has-addons level-item">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content article-body">
+                                      <p class="subtitle is-4">Folder: lib</p>
+                                        <p>The lib folder, located in the installiation directory of the Payment Gateway, contains all the dependencies and third-party libaries used by the application. 
+                                          This directory also contains the installation files for the SQL Compact database, that is installed during the program installiation.</p>
+
+                                      <p class="subtitle is-4">Folder: config</p>
+                                        <p>The config folder is located inside the installation directory of the Payment Gateway and contains the <em>config.json</em> file. 
+                                          This file is automatically generated by the program if not detected upon application run and is used to host the application configuration to be run during runtime.</p>
+
+                                      <p class="subtitle is-4">Folder: logs</p>
+                                        <p>The logs folder is located inside the installation directory and is used to store logs. 
+                                          This folder is generated during the runtime of the installation of the SQL Compact database and is also used by the application for generating and storing logs such 
+                                          as application runtime, errors and crash report logs.</p>
+
+                                      <p class="subtitle is-4">Folder: Support</p>
+                                        <p>The support folder, also contained within the installiation directory is not created as part of the application installation.
+                                          This directory is used to host support data zip files that are automatically generated when the application experiences an unhandled exception and is generated when needed.
+                                        </p>
+
+                                      <p class="subtitle is-4">File(s)</p>
+                                      <ul>
+
+                                        <table>
+                                          <thead>
+                                            <tr>
+                                              <th>File</th>
+                                              <th>Deacription</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            <tr>
+                                              <td>PaymentGateway.exe</td>
+                                              <td>This file is the main applcation file, containing all the functionality and features of the application. This file is to be run every time you wish to call the application.</td>
+                                            </tr>
+                                            <tr>
+                                              <td>NLog.config</td>
+                                              <td>The logging configuration file. This file can be configured using the documentation <a href="https://github.com/nlog/nlog/wiki">here</a> according to your requirements and is used to direct logs within the application.</td>
+                                            </tr>
+                                            <tr>
+                                              <td>setupdatabase.bat</td>
+                                              <td>A batch file used to silently run the installiation of the SQL Compact database as well as create the logs directory</td>
+                                            </tr>
+                                            <tr>
+                                              <td>db.sdf</td>
+                                              <td>The application database. This database is encryped and is created by the application unless an existing one is already detected.</td>
+                                            </tr>
+                                            <tr>
+                                              <td>AppConfig.json</td>
+                                              <td>The application configuration file is used to export data such as the database password (encryped), application version and database version to a format that can be read by other applications with the authority.</td>
+                                            </tr>
+                                            <tr>
+                                              <td>PaymentGateway.exe.config</td>
+                                              <td>A configuration file containing the application configuration for the PaymentGateway.exe</td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+
+                                        <p style="color: red;">Please DO NOT edit any of these files unless advised to by a member of technical support. Modification of these files that was not performed by the application or one of its sub-processes may result in system failure or data loss</p>
+                                        <p>The NLog.config file may be editted, however, if not configured correctly errors may occurre or fail to produce logs.</p>
+                                    </div>
+                                </div>
+                            </div>
+                          </div>
+                        </section>
+                        <section class="articles" id="troubleshooting">
+                          <div class="column is-8 is-offset-2">
+                              <div class="card article">
+                                  <div class="card-content">
+                                      <div class="media">
+                                          <div class="media-content has-text-centered">
+                                              <p class="subtitle is-1 article-title">Application Troubleshooting</p>
+                                              <div class="tags has-addons level-item">
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <div class="content article-body">
+                                          <p>The paymnet gateway has been designed with error handling considered. 
+                                            Multiple means have been put in place to ensure that should an error occurre, that it is handled/ made knownm and logged for further investigation.
+                                              <br>
+                                            This payment gateway has been built with the following features to assist in error handling...
+                                          </p>
+                                          <ul>
+                                            <li>UnhandledException support file</li>
+                                            <li>HandledException log file</li>
+                                            <li>Application Runtime log file</li>
+                                            <li>Log-To-Email functionality</li>
+                                            <li>Customisable logging configuration</li>
+                                            <li>Automatic Support data files</li>
+                                          </ul>
+                                          <h1 class="subtitle is-4">UnhandledException</h1>
+                                            <p>It is often unknown whether or not an application is going to crash and when it will crash. 
+                                              Therefore, to help mitigage downtime during the life of this application, functionality has been implemented to catch and handle unhandled exceptions.
+                                                <br><br>
+                                              When the application first starts, a new event handler is registered. An <strong>UnhandledExceptionEventHandler</strong>
+                                              This handler is assigned to the current running process and will listen out for any exceptions that the program throws, that have NOT been caught by the program code.
+                                                <br><br>
+                                                When this happens, the error is captured and written to a new file called <em>appCrash.log</em> and is placed inside the <em>log</em> directory. 
+                                                The current date and time is also written to the file with the error, to help identify when such an error occurred and why.
+                                            </p>
+                                          <h1 class="subtitle is-4">Handled Exceptions</h1>
+                                            <p>As well as handling unhandled exceptions, the program also has functionality to handle many commonly excepted expected, also known as handled exceptions.
+                                                <br><br>
+                                              The program has been been designed with many methods and functionality to validate data and ensure consistenty throughout, however, errors can still occurre. 
+                                              In the event that they do, they will be caught by the Try {} Catch {} block and logged accordingly. 
+                                            </p>
+                                          <h1 class="subtitle is-4">Runtime Log</h1>
+                                            <p>During runtime, the application will generate a log of the events that are going on within the program. This log is written to multiple locations, including the application console window as well as a file.
+                                                <br><br>
+                                                The log file is created and stored in the <em>log</em> folder and holds a runtime log of the applications activity.
+                                            </p>
+                                          <h1 class="subtitle is-4">Log-To-Email</h1>
+                                            <p>Along with the runtime log file, the application also offers log-to-email functionality, allowing users to setup SMTP details and have warning, error and fatal class logs emailed to them.
+                                              This can be helpful in the case that you are not always able to watch over your systems but would like to know if your system has an issue.
+                                            </p>
+                                          <h1 class="subtitle is-4">Customisable Logging file</h1>
+                                            <p>The logging configuration file is a file designed and pre-configured with each installiation of the payment gateway to log errors to multiple locations.
+                                              By default, the system is designed to logg files to what is known as <em>targets</em>, different locations such as files and processes that will handle the file and process it further.
+                                              <br><br>
+                                              You can configure this to use your own configuration by amending the NLog.config file and by following the instructions on the <a href="https://github.com/NLog/NLog/wiki/Tutorial">NLog Documentation</a>
+                                            </p>
+                                          <h1 class="subtitle is-4">Automatic Support data file</h1>
+                                            <p>If the application crashes, a support file (zip) is created. This file is comprised of all the logs generated by the system, such as...</p>
+                                              <ul>
+                                                <li>dbInstall.log</li>
+                                                <li>appLog.log</li>
+                                                <li>appException.log</li>
+                                                <li>appCrash.log</li>
+                                              </ul>
+                                            <p>You can also manually generate these support files by starting the app in an elevated command prompt with the command <strong>PaymentGateway.exe -s</strong></p>
+                                          </div>
+                                  </div>
+                              </div>
+                            </div>
+                          </section>
+  </body>
+</html>
