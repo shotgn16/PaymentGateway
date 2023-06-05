@@ -27,5 +27,11 @@ namespace PaymentGateway.request
                 _handler.SslProtocols = securityManagement.tlsVersion();
             }
         }
+
+        public static void Dispose()
+        {
+            _handler.Dispose();
+            _client.Dispose();
+        }
     }
 }

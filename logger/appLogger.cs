@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Security;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
 
@@ -69,9 +70,10 @@ namespace Gateway.Logger
 
     public class crashLogger
     {
+        private static Exception e;
         public static async void OnException(object sender, UnhandledExceptionEventArgs args)
         {
-            Exception e = (Exception)args.ExceptionObject;
+            e = (Exception)args.ExceptionObject;
 
             using (StreamWriter file = File.AppendText(@"logs\appCrash.log"))
             {
@@ -79,6 +81,12 @@ namespace Gateway.Logger
             }
 
             await supportData.generateDataFile();
+        }
+
+        public void Dispose()
+        {
+            e = null;
+            GC.Collect();
         }
     }
 }

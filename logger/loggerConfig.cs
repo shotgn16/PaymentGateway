@@ -18,6 +18,7 @@ namespace ApiTest.Logger
                 Attributes =
                {
                    new JsonAttribute("time", "${longdate}"),
+                   new JsonAttribute("thread", "${threadid}"),
                    new JsonAttribute("level", "${level:upperCase=true}"),
                    new JsonAttribute("type", "${exception:format=Type}"),
                    new JsonAttribute("message", "${message}"),

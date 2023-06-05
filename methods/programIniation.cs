@@ -1,4 +1,5 @@
-﻿using PaymentGateway.data;
+﻿using Microsoft.Graph.Models;
+using PaymentGateway.data;
 using PaymentGateway.Properties;
 using System;
 using System.Collections.Generic;
@@ -15,12 +16,10 @@ namespace PaymentGateway.methods
 {
     internal class programIniation
     {
-        public static char[] charArray = "!@#$%^&*()".ToCharArray();
-
+        private static WindowsIdentity identity = WindowsIdentity.GetCurrent();
+        private static WindowsPrincipal principle = new WindowsPrincipal(identity);
         public static async Task<bool> isAdministrator(bool isAdmin = false)
         {
-            WindowsIdentity identity = WindowsIdentity.GetCurrent();
-            WindowsPrincipal principle = new WindowsPrincipal(identity);
             isAdmin = principle.IsInRole(WindowsBuiltInRole.Administrator);
 
             return isAdmin;
@@ -31,106 +30,71 @@ namespace PaymentGateway.methods
             //Verify if program is being run as admin...
             bool isAdmin = await isAdministrator(true);
 
-            if (isAdmin == false)
-            {
+            if (isAdmin == false) {
                 MessageBox.Show("Please run the application with administrator rights to continue...", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information); Environment.Exit(0);
             }
 
             //Checks if Database password setting has been filled or not!
-            await CheckDatabasePassword();
+            await DatabasePasswordExists();
         }
 
-        private static async Task CheckDatabasePassword()
+        private static async Task DatabasePasswordExists()
         {
-            //Checks if Database password setting has been filled or not!
             if (string.IsNullOrWhiteSpace(Properties.Settings.Default.dbPassword))
-            {
-                Console.WriteLine("Please provide a passowrd for the database of the following requirements...\n- At least 12 characters long\n- At least 1 special character\n- No whitespaces\n\n\nPlease note this password down as you may need it in the future. The database CANNOT be accessed without it!");
-                Console.Write("\n" + "Password: ");
-
-                //Checks if password is valid - If so, stores it in app settings
-                await verifyDatabasePassword(Console.ReadLine());
-            }
-        }
-
-        public static async Task verifyDatabasePassword(string pwd)
-        {
-            //If Password IS Valid!
-            if (!string.IsNullOrWhiteSpace(pwd) || pwd.Length >= 12 || pwd.IndexOfAny(charArray) != -1)
-            {
-                Properties.Settings.Default.dbPassword = pwd;
-                Properties.Settings.Default.Save();
-
-                //Creates a JSON file with the database password specified - Can be imported to other applicaitions for use with accessing the database.
-                await exportdata.createFile();
-                Environment.Exit(0);
-
-                Console.WriteLine("\n" + "Thanks! Password saved!");
-
-                Thread.Sleep(4000);
-                Console.Clear();
-            }
-
-            else if (string.IsNullOrWhiteSpace(pwd) || pwd.Length < 12 || pwd.IndexOfAny(charArray) == -1)
-            {
-                Console.WriteLine("Error Invalid Password!");
-                Thread.Sleep(4000); Console.Clear();
-
-                await bootUp();//Re-Runs the whole process
-            }
+                await arguments.sets_DatabasePassword();
         }
 
         public static async Task checkArguments(string[] args)
         {
             if (args.Contains("-s"))
             {
-                await supportData.generateDataFile();
-                MessageBox.Show("Support file generated successfully!", "Application Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                Environment.Exit(0);
+                await arguments.generate_SuportData();
             }
 
-            else if (args.Contains("-a"))
+            else if (args.Contains("-e"))
             {
                 await createFile();
-                Environment.Exit(0);
             }
 
             else if (args.Contains("-db"))
             {
-                await CheckDatabasePassword();
+                await DatabasePasswordExists();
                 await db.buildDatabase(Properties.Settings.Default.dbPassword);
             }
 
             else if (args.Contains("-r"))
             {
-                Console.Write("Please enter database password: ");
-                var password = Console.ReadLine();
+                
+            }
 
-                if (password == Settings.Default.dbPassword)
-                {
-                    //Assign tmp password equal to new password value.
-                    Settings.Default.dbPassword = null;
-                    Settings.Default.dbPassword = password;
+            else if (args.Contains("-o"))
+            {
+                Console.WriteLine("The database password is: " + Settings.Default.dbPassword);
 
-                    //Rename the old database and create a new one with the new database password
-                    System.IO.File.Move("db.sdf", "old-db.sdf");
-                    await db.CreateConnection(Properties.Settings.Default.dbPassword);
+                Thread.Sleep(7500);
+                Console.Clear(); Environment.Exit(0);
+            }
 
-                    Console.WriteLine("Database password reset successfully!");
-                    Console.WriteLine("New database sucessfully created!");
-                    Environment.Exit(0);
-                }
-
-                else if (password != Settings.Default.dbPassword)
-                {
-                    Environment.Exit(0);
-                }
+            else if (args.Contains("-dbe"))
+            {
+                await arguments.export_DatabaseTables();
             }
 
             //Arguments:
-            // (-a) Create AppConfig.json
+            // (-e) Create AppConfig.json
             // (-s) Generates a support file
             // (-r) Prompts for a new database password. Once done, will rename the old database and create a brand new one!
+            // (-o) Outputs the database password to the console
+            // (-dbe) Exports each database table as a .csv file
+
+        }
+
+        public static void Dispose()
+        {
+            identity.Dispose();
+            principle = null;
+
+            GC.Collect();
         }
     }
 }

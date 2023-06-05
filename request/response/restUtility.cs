@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Gateway.Logger;
-using PaymentGateway.exceptions;
 using PaymentGateway.methods;
 using PaymentGateway.methods.timers;
 
@@ -209,21 +208,20 @@ namespace PaymentGateway.request.response
 
                 if (myClass.access_token == null)
                 {
-                    new DeserializationException("An error occurred while authenticating with MyQ");
+                    MyLogger.GetInstance().Error("Error: ", "Failed while authenticating with MyQ");
                 }
 
-                myqConfiguration.MyQ.Token = myClass.access_token;
-                myqConfiguration.MyQ.TokenExpire = myClass.expires_in;
+                internalConfig.internalConfiguration.Token = myClass.access_token;
+                internalConfig.internalConfiguration.TokenExpire = myClass.expires_in;
 
-                Task.Factory.StartNew(async () => { await generateToken.AuthRefresh(); });
+                await Task.Factory.StartNew(async () => { await generateToken.AuthRefresh(); });
 
-                MyLogger.GetInstance().Info("Deserialization Complete, Access Token: {0}", await data.DatabaseHash.dbEncrypt(myClass.access_token, 2));
+                MyLogger.GetInstance().Info("Deserialization Complete, Access Token: {0}", await data.hash.dbEncrypt(myClass.access_token, 2));
             }
 
             catch (Exception ex)
             {
-                var exception = new DeserializationException(ex.Message);
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: ", ex);
             }
         }
 
@@ -239,19 +237,17 @@ namespace PaymentGateway.request.response
 
                 if (myClass.users[0].id.ToString() == null)
                 {
-                    var exception = new DeserializationException("an Error occurred while deserializing user data from MyQ");
-                    MyLogger.GetInstance().Error("Error: ", exception);
+                    MyLogger.GetInstance().Error("Error: ", "Failed while deserializing user data from MyQ");
                 }
 
-                myqConfiguration.MyQ.UserID = myClass.users[0].id.ToString();
-                myqConfiguration.MyQ.Username = myClass.users[0].username;
-                MyLogger.GetInstance().Info("Deserialization Complete, UserID: {0}", await data.DatabaseHash.dbEncrypt(myClass.users[0].id.ToString(), 2));
+                internalConfig.internalConfiguration.UserID = myClass.users[0].id.ToString();
+                internalConfig.internalConfiguration.Username = myClass.users[0].username;
+                MyLogger.GetInstance().Info("Deserialization Complete, UserID: {0}", await data.hash.dbEncrypt(myClass.users[0].id.ToString(), 2));
             }
 
             catch (Exception ex)
             {
-                var exception = new DeserializationException(ex.Message);
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: ", ex);
             }
         }
 
@@ -278,13 +274,12 @@ namespace PaymentGateway.request.response
                     MyLogger.GetInstance().Debug("PaymentValidator, Payments found!");
                 }
 
-                MyLogger.GetInstance().Info("Deserialization Complete, Payments: {0}", await data.DatabaseHash.dbEncrypt(myClass.count.ToString(), 2));
+                MyLogger.GetInstance().Info("Deserialization Complete, Payments: {0}", await data.hash.dbEncrypt(myClass.count.ToString(), 2));
             }
 
             catch (Exception ex)
             {
-                var exception = new DeserializationException(ex.Message);
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: ", ex);
             }
         }
 
@@ -303,8 +298,7 @@ namespace PaymentGateway.request.response
 
                 if (result == false)
                 {
-                    var exception = new DeserializationException("an Error occurred. Please ensure you have enabled 'External Payment Providers' in MyQ > Accounting > Credit > Credit recharge");
-                    MyLogger.GetInstance().Error("Error: ", exception);
+                    MyLogger.GetInstance().Error("Error: ", "Please ensure you have enabled 'External Payment Providers' in MyQ > Accounting > Credit > Credit recharge");
                 }
 
                 MyLogger.GetInstance().Info("Deserialization Complete!");
@@ -312,8 +306,7 @@ namespace PaymentGateway.request.response
 
             catch (Exception ex)
             {
-                var exception = new DeserializationException("Error: " + ex.Message);
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: ", ex);
             }
         }
 
@@ -332,8 +325,7 @@ namespace PaymentGateway.request.response
 
                 if (result == 0)
                 {
-                    var exception = new DeserializationException("an Error occurred while creating recharge request, please try again later.");
-                    MyLogger.GetInstance().Error("Error: ", exception);
+                    MyLogger.GetInstance().Error("Error: ", "Failed to create recharge request, please try again later.");
                 }
 
                 else if (result == 2)
@@ -343,17 +335,16 @@ namespace PaymentGateway.request.response
 
                 else if (result == 1)
                 {
-                    MyLogger.GetInstance().Info("Deserialization Complete!, Value {0}", await data.DatabaseHash.dbEncrypt(myClass.amount.ToString(), 2));
+                    MyLogger.GetInstance().Info("Deserialization Complete!, Value {0}", await data.hash.dbEncrypt(myClass.amount.ToString(), 2));
                 }
 
-                myqConfiguration.MyQ.PaymentAmount = myClass.amount;
-                myqConfiguration.MyQ.PaymentID = myClass.id;
+                internalConfig.internalConfiguration.PaymentAmount = myClass.amount;
+                internalConfig.internalConfiguration.PaymentID = myClass.id;
             }
 
             catch (Exception ex)
             {
-                var exception = new DeserializationException(ex.Message);
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: ", ex);
             }
         }
 
@@ -365,13 +356,12 @@ namespace PaymentGateway.request.response
 
                 Root6 myClass = JsonConvert.DeserializeObject<Root6>(Input);
 
-                MyLogger.GetInstance().Info("Deserialization Complete, {0}", await data.DatabaseHash.dbEncrypt(myClass.amount.ToString(), 2));
+                MyLogger.GetInstance().Info("Deserialization Complete, {0}", await data.hash.dbEncrypt(myClass.amount.ToString(), 2));
             }
 
             catch (Exception ex)
             {
-                var exception = new DeserializationException(ex.Message);
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: ", ex);
             }
         }
 
@@ -386,14 +376,13 @@ namespace PaymentGateway.request.response
                 MyLogger.GetInstance().Debug("Checking user credit");
 
                 bool result = await restValidation.CheckCredit(myClass);
-                if (result == false) { throw new DeserializationException($"Error - failed to retrieve credit for user: '{myqConfiguration.MyQ.Username}'. Please check credit is enabled and try again!"); }
+                if (result == false) { throw new ArgumentNullException($"Error - failed to retrieve credit for user: '{internalConfig.internalConfiguration.Username}'. Please check credit is enabled and try again!"); }
                 MyLogger.GetInstance().Info("Deserialization Complete, Credit accounts: {0}", myClass.accounts.Count);
             }
 
             catch (Exception ex)
             {
-                var exception = new DeserializationException(ex.Message);
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: ", ex);
             }
         }
 
@@ -404,13 +393,15 @@ namespace PaymentGateway.request.response
                 if (!string.IsNullOrEmpty(Input))
                 {
                     await certificateManagement.StringToCertificate(Input);
+
+                    //Disposing the resources once finished with them
+                    certificateManagement.Dispose();
                 }
             }
 
             catch (Exception ex)
             {
-                var exception = new CertificateException("Error: " + ex.Message);
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: ", ex);
             }
         }
     }

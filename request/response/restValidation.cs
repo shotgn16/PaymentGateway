@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PaymentGateway.exceptions;
 
 namespace PaymentGateway.methods
 {
@@ -33,8 +32,7 @@ namespace PaymentGateway.methods
 
             catch (Exception ex)
             {
-                var exception = new DataValidationException(ex.Message);
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
             }
 
             return Task.FromResult(returnValue).Result;
@@ -64,8 +62,7 @@ namespace PaymentGateway.methods
 
             catch (Exception ex)
             {
-                var exception = new DataValidationException(ex.Message);
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
             }
 
             return Task.FromResult(returnValue).Result;
@@ -97,8 +94,7 @@ namespace PaymentGateway.methods
 
             catch (Exception ex)
             {
-                var exception = new DataValidationException(ex.Message);
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
             }
 
             return Task.FromResult(ProviderExists).Result;
@@ -120,7 +116,7 @@ namespace PaymentGateway.methods
 
                 else if (Transaction.id != null && Transaction.userId != 0)
                 {
-                    if (Transaction.amount == myqConfiguration.MyQ.Amount)
+                    if (Transaction.amount == internalConfig.internalConfiguration.Amount)
                     {
                         ValidPayment = 1;
                     }
@@ -133,8 +129,7 @@ namespace PaymentGateway.methods
 
             catch (Exception ex)
             {
-                var exception = new DataValidationException(ex.Message);
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
             }
 
             return Task.FromResult(ValidPayment).Result;
@@ -153,7 +148,7 @@ namespace PaymentGateway.methods
                     {
                         if (item.reference == "internalaccount")
                         {
-                            myqConfiguration.MyQ.UserNewBalance = item.limits.price;
+                            internalConfig.internalConfiguration.UserNewBalance = item.limits.price;
                             returnValue = true;
                             break;
                         }
@@ -167,8 +162,7 @@ namespace PaymentGateway.methods
 
             catch (Exception ex)
             {
-                var exception = new DataValidationException(ex.Message);
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
             }
 
             return Task.FromResult(returnValue).Result;

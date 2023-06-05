@@ -6,7 +6,6 @@ using Flurl.Http;
 using Flurl.Http.Configuration;
 using Gateway.Logger;
 using PaymentGateway.methods;
-using PaymentGateway.exceptions;
 
 namespace PaymentGateway.request
 {
@@ -38,7 +37,7 @@ namespace PaymentGateway.request
                     var url = await buildRequest.BuildURL(1);
 
                     MyLogger.GetInstance().Debug("Loading request content");
-                    var data = new StringContent(myqConfiguration.MyQ.TokenAuth_Body, Encoding.UTF8, "application/json");
+                    var data = new StringContent(internalConfig.internalConfiguration.TokenAuth_Body, Encoding.UTF8, "application/json");
 
                     MyLogger.GetInstance().Debug("Sending API request...");
                     response = await url.PostAsync(data);
@@ -52,8 +51,7 @@ namespace PaymentGateway.request
 
             catch (FlurlHttpException ex)
             {
-                var exception = new RequestException(await ex.GetResponseStringAsync());
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: ", await ex.GetResponseStringAsync());
             }
 
             MyLogger.GetInstance().Debug("Returning API response");
@@ -93,8 +91,7 @@ namespace PaymentGateway.request
 
             catch (FlurlHttpException ex)
             {
-                var exception = new RequestException(await ex.GetResponseStringAsync());
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: ", await ex.GetResponseStringAsync());
 
             }
 
@@ -108,7 +105,7 @@ namespace PaymentGateway.request
 
             try
             {
-                myqConfiguration.MyQ.reqUsername = username; myqConfiguration.MyQ.reqCode = code;
+                internalConfig.internalConfiguration.reqUsername = username; internalConfig.internalConfiguration.reqCode = code;
 
                 whitelisted = securityManagement.WhitelistAddress(applicationConfiguration.Credentials.ServerAddress).Result;
 
@@ -122,7 +119,7 @@ namespace PaymentGateway.request
                     var data = new StringContent(string.Empty, Encoding.UTF8, "appliation/json");
 
                     MyLogger.GetInstance().Debug("Sending API request...");
-                    response = await url.WithOAuthBearerToken(myqConfiguration.MyQ.Token).GetAsync();
+                    response = await url.WithOAuthBearerToken(internalConfig.internalConfiguration.Token).GetAsync();
                 }
 
                 else
@@ -133,8 +130,7 @@ namespace PaymentGateway.request
 
             catch (FlurlHttpException ex)
             {
-                var exception = new RequestException(await ex.GetResponseStringAsync());
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: ", await ex.GetResponseStringAsync());
 
             }
 
@@ -160,7 +156,7 @@ namespace PaymentGateway.request
                     var data = new StringContent(string.Empty, Encoding.UTF8, "application/json");
 
                     MyLogger.GetInstance().Debug("Sending API request...");
-                    response = await url.WithOAuthBearerToken(myqConfiguration.MyQ.Token).GetAsync();
+                    response = await url.WithOAuthBearerToken(internalConfig.internalConfiguration.Token).GetAsync();
                 }
 
                 else
@@ -171,8 +167,7 @@ namespace PaymentGateway.request
 
             catch (FlurlHttpException ex)
             {
-                var exception = new RequestException(await ex.GetResponseStringAsync());
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: ", await ex.GetResponseStringAsync());
             }
 
             MyLogger.GetInstance().Debug("Returning API response");
@@ -194,10 +189,10 @@ namespace PaymentGateway.request
                     var url = await buildRequest.BuildURL(5);
 
                     MyLogger.GetInstance().Debug("Loading request content");
-                    var data = new StringContent(myqConfiguration.MyQ.RechargeRequest_Body, Encoding.UTF8, "application/json");
+                    var data = new StringContent(internalConfig.internalConfiguration.RechargeRequest_Body, Encoding.UTF8, "application/json");
 
                     MyLogger.GetInstance().Debug("Sending API request...");
-                    response = await url.WithOAuthBearerToken(myqConfiguration.MyQ.Token).PostAsync(data);
+                    response = await url.WithOAuthBearerToken(internalConfig.internalConfiguration.Token).PostAsync(data);
                 }
 
                 else
@@ -209,8 +204,7 @@ namespace PaymentGateway.request
 
             catch (FlurlHttpException ex)
             {
-                var exception = new RequestException(await ex.GetResponseStringAsync());
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: ", await ex.GetResponseStringAsync());
             }
 
             MyLogger.GetInstance().Debug("Returning API response");
@@ -236,7 +230,7 @@ namespace PaymentGateway.request
                     var data = new StringContent(string.Empty, Encoding.UTF8, "application/json");
 
                     MyLogger.GetInstance().Debug("Sending API request...");
-                    response = await url.WithOAuthBearerToken(myqConfiguration.MyQ.Token).PostAsync(data);
+                    response = await url.WithOAuthBearerToken(internalConfig.internalConfiguration.Token).PostAsync(data);
                 }
 
                 else
@@ -247,8 +241,7 @@ namespace PaymentGateway.request
 
             catch (FlurlHttpException ex)
             {
-                var exception = new RequestException(await ex.GetResponseStringAsync());
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: ", await ex.GetResponseStringAsync());
             }
 
             MyLogger.GetInstance().Debug("Returning API response");
@@ -273,7 +266,7 @@ namespace PaymentGateway.request
                     var data = new StringContent(string.Empty, Encoding.UTF8, "application/json");
 
                     MyLogger.GetInstance().Debug("Sending API request...");
-                    response = await url.WithOAuthBearerToken(myqConfiguration.MyQ.Token).GetAsync();
+                    response = await url.WithOAuthBearerToken(internalConfig.internalConfiguration.Token).GetAsync();
                 }
 
                 else
@@ -284,8 +277,7 @@ namespace PaymentGateway.request
 
             catch (FlurlHttpException ex)
             {
-                var exception = new RequestException(await ex.GetResponseStringAsync());
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: ", await ex.GetResponseStringAsync());
             }
 
             MyLogger.GetInstance().Debug("Returning API response");
@@ -310,7 +302,7 @@ namespace PaymentGateway.request
                     var data = new StringContent(string.Empty, Encoding.UTF8, "application/json");
 
                     MyLogger.GetInstance().Debug("Sending API request...");
-                    response = await url.WithOAuthBearerToken(myqConfiguration.MyQ.Token).GetAsync();
+                    response = await url.WithOAuthBearerToken(internalConfig.internalConfiguration.Token).GetAsync();
                 }
 
                 else
@@ -321,14 +313,12 @@ namespace PaymentGateway.request
 
             catch (FlurlHttpException ex)
             {
-                var exception = new RequestException(await ex.GetResponseStringAsync());
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: ", await ex.GetResponseStringAsync());
             }
 
             MyLogger.GetInstance().Debug("Returning API response");
             return response;
         }
-
     }
 }
  

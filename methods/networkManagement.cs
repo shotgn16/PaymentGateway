@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using PaymentGateway.exceptions;
 
 namespace PaymentGateway.methods
 {
@@ -37,11 +36,15 @@ namespace PaymentGateway.methods
 
             catch (Exception ex)
             {
-                var exception = new DnsException(ex.Message);
-                MyLogger.GetInstance().Error("Error: " + exception, ex.StackTrace);
+                MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
             }
 
             return returnValue;
+        }
+
+        public static void Dispose()
+        {
+            GC.Collect();
         }
     }
 }
