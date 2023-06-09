@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Gateway.Logger;
 using ICSharpCode.SharpZipLib.Zip;
 
 namespace PaymentGateway.data
@@ -17,9 +18,6 @@ namespace PaymentGateway.data
         //A method that will create a zip file using the specified path above. The file will contain all the logs located in the 'logs' directory of the application.
         public static async Task generateDataFile()
         {
-            //Creates a file with System Information in the 'logs' folder
-            await createSysInfo();
-
             //Checks if the DIR exists and if not creates it.
             await createDirectory();
 
@@ -42,7 +40,6 @@ namespace PaymentGateway.data
                     using (FileStream fs = File.OpenRead(file))
                     {
                         int sourceBytes;
-
                         do
                         {
                             sourceBytes = fs.Read(buffer, 0, buffer.Length);
@@ -63,22 +60,6 @@ namespace PaymentGateway.data
 
             if (!Directory.Exists(currentPath + " /Support"))
                 Directory.CreateDirectory(currentPath + "/Support");
-        }
-
-        internal static async Task createSysInfo()
-        {
-            if (!File.Exists("logs\\sysInfo.txt"))
-                File.Create("logs\\sysInfo.txt");
-
-            string sysInfo = "PaymentGateway: " + Environment.Version + "\n"
-                           + "OSVersion: " + Environment.OSVersion + "\n"
-                           + "Processor Count: " + Environment.ProcessorCount + "\n"
-                           + "WorkingDirectory: " + Environment.CurrentDirectory + "\n"
-                           + "is64Bit: " + Environment.Is64BitOperatingSystem + "\n"
-                           + "PagefileSize: " + Environment.SystemPageSize + "\n"
-                           + "MappedMemory (Working Set): " + Environment.WorkingSet;
-
-            File.AppendAllText("logs\\sysInfo.txt", sysInfo);
         }
 
         public static void Dispose()

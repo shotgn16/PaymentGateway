@@ -29,7 +29,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>1</ApplicationRevision>
-    <ApplicationVersion>1.0.624.1</ApplicationVersion>
+    <ApplicationVersion>1.0.625.1</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -333,6 +333,7 @@
   <ItemGroup>
     <Compile Include="cleanup\dbClean.cs" />
     <Compile Include="data\database.cs" />
+    <Compile Include="data\fileHandler.cs" />
     <Compile Include="data\hash.cs" />
     <Compile Include="data\exportdata.cs" />
     <Compile Include="data\supportData.cs" />
@@ -347,7 +348,7 @@
     <Compile Include="methods\networkManagement.cs" />
     <Compile Include="methods\programIniation.cs" />
     <Compile Include="methods\recharger.cs" />
-    <Compile Include="methods\securityManagement.cs" />
+    <Compile Include="request\response\securityManagement.cs" />
     <Compile Include="methods\timers\generateToken.cs" />
     <Compile Include="methods\timers\updateMyQ.cs" />
     <Compile Include="methods\timers\updateParentPay.cs" />

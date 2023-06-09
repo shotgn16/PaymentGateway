@@ -64,7 +64,7 @@ namespace PaymentGateway.methods
 
             else if (args.Contains("-r"))
             {
-                
+
             }
 
             else if (args.Contains("-o"))
@@ -80,12 +80,18 @@ namespace PaymentGateway.methods
                 await arguments.export_DatabaseTables();
             }
 
+            else if (args.Contains("-t"))
+            {
+                await arguments.setTimer();
+            }
+
             //Arguments:
             // (-e) Create AppConfig.json
             // (-s) Generates a support file
             // (-r) Prompts for a new database password. Once done, will rename the old database and create a brand new one!
             // (-o) Outputs the database password to the console
             // (-dbe) Exports each database table as a .csv file
+            // (-t) Set time for timers
 
         }
 

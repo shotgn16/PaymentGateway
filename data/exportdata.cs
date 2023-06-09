@@ -1,17 +1,7 @@
 ﻿using Newtonsoft.Json;
-using PaymentGateway.methods;
 using System;
-using System.Collections.Generic;
-using System.Data;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web;
-using CsvHelper;
-using System.Drawing.Text;
-using Gateway.Logger;
-using System.Globalization;
 
 namespace PaymentGateway.data
 {
@@ -64,42 +54,13 @@ namespace PaymentGateway.data
     {
         internal static async Task buildExportFiles()
         {
-            if (!File.Exists("table1_export.csv")) {
-                File.Create("table1_export.csv");                           
-            }
+            string exportFile_1 = @"table1.csv";
+            string exportFile_2 = @"table2.csv";
 
-            else if (File.Exists("table1_export.csv")) {
-                MyLogger.GetInstance().Info("CSV exists! Skipping file creation...");
-            }
+            await fileHandler.checkFileExists(exportFile_1);
+            await fileHandler.checkFileExists(exportFile_2);
 
-            if (!File.Exists("table1_export.csv")) {
-                File.Create("table2_export.csv");
-            }
-
-            else if (File.Exists("table2_export.csv")) {
-                MyLogger.GetInstance().Info("CSV exists! Skipping file creation...");
-            }
-        }
-
-        internal static async Task writerCSV(List<string> row, int tableNumber)
-        {
-            if (tableNumber == 1)
-            {
-                using (var writer = new StreamWriter("table1_export.csv"))
-                using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
-                {
-                    csv.WriteRecords(row);
-                }
-            }
-
-            else if (tableNumber == 2)
-            {
-                using (var writer = new StreamWriter("table2_export.csv"))
-                using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
-                {
-                    csv.WriteRecords(row);
-                }
-            }
+            await fileHandler.OpenLockFile(exportFile_1, exportFile_2);
         }
     }
 }

@@ -11,6 +11,7 @@ using System.Data.SqlServerCe;
 using System.Windows.Forms;
 using PaymentGateway.methods;
 using System.Data.Entity;
+using PaymentGateway.Properties;
 
 namespace PaymentGateway.data
 {
@@ -50,21 +51,25 @@ namespace PaymentGateway.data
         //The 'buildDatabase' method assigns a connection string, pulling the password the user entered when the program first ran.
         //The method will then check to see if the specified database file exists within the database and if not will create the file using the connection string.
         //The method will then return true as the database has ben created. Should it fail and create an error, the try {} catch {} statement will catch this and log the error accordingly.
-        public static async Task<bool> buildDatabase(string dbPassword, bool dbExists = false)
+        public static async Task<bool> buildDatabase(string dbPassword = null, bool dbExists = false)
         {
+            if (dbPassword != null)
             dbPasswod = dbPassword;
+
+            else if (dbPassword == null)
+            dbPasswod = Settings.Default.dbPassword;
 
             try
             {
                 if (await databaseLocation())
-                    ConnectionString = $"DataSource={internalConfig.internalConfiguration.dbLocation}\\db.sdf;Password={dbPassword};File Mode=shared read";
+                    ConnectionString = $"Data Source={internalConfig.internalConfiguration.dbLocation}\\db.sdf;Encrypt Database=True;Password={Settings.Default.dbPassword};File Mode=Exclusive;Persist Security Info=True;";
 
                 if (await databaseLocation())
                     if (File.Exists($"{internalConfig.internalConfiguration.dbLocation}\\db.sdf"))
                     {
                         dbExists = true;
                     }
-                    
+
                     else if (!File.Exists($"{internalConfig.internalConfiguration.dbLocation}\\db.sdf"))
                     {
                         //Creating a new instance of the SqlCeEngine, in order to utilise the CreateDatabase() function.
@@ -75,10 +80,11 @@ namespace PaymentGateway.data
                         }
 
                         dbExists = true;
-                }
+                    }
             }
 
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
 
                 dbExists = false;
@@ -98,8 +104,7 @@ namespace PaymentGateway.data
                 if (!Directory.Exists(internalConfig.internalConfiguration.dbLocation))
                 {
                     //Creates directory...
-                    directoryInfo.Attributes = FileAttributes.Hidden | FileAttributes.Directory;
-                    directoryInfo.Create();
+                    Directory.CreateDirectory(internalConfig.internalConfiguration.dbLocation);
 
                     //Check: Directory created, does it exist now?
                     if (Directory.Exists(internalConfig.internalConfiguration.dbLocation))
@@ -185,7 +190,7 @@ namespace PaymentGateway.data
 
                                 MyLogger.GetInstance().Debug("Creating database table 'transactionHistory'");
 
-                                await executeQuery("CREATE TABLE transactionHistory (P_UserID nvarchar(50), P_TransactionID nvarchar(50), M_UserID nvarchar(50))", connection);
+                                await executeQuery("CREATE TABLE transactionHistory (P_UserID nvarchar(50), M_UserID nvarchar(50)), P_TransactionID nvarchar(50)", connection);
                             }
                         }
                     }
@@ -257,7 +262,7 @@ namespace PaymentGateway.data
                 {
                     try
                     {
-                        command.CommandText = "INSERT INTO transactionHistory (P_UserID, P_TransactionID, M_UserID) VALUES (@UserID, @P_TransactionID, @M_UserID)";
+                        command.CommandText = "INSERT INTO transactionHistory (P_UserID, M_UserID, P_TransactionID) VALUES (@UserID, @M_UserID, @P_TransactionID)";
 
                         command.Parameters.AddWithValue("@UserID", P_UserID);
                         command.Parameters.AddWithValue("@P_TransactionID", P_TtansactionID);
@@ -378,7 +383,7 @@ namespace PaymentGateway.data
                                 lstBalance.Add(reader[2].ToString());
 
                                 string newUserBalance = await parseLateatTransaction(dt, lstBalance);
-                                balance = await 
+                                balance = await
                                     hash.decryptBalance(newUserBalance);
                             }
                         }
@@ -431,6 +436,9 @@ namespace PaymentGateway.data
 
         internal static async Task getTableData()
         {
+            //Check if files exist
+            await TabledataExport.buildExportFiles();
+
             MyLogger.GetInstance().Info("Retrieving table data...");
 
             List<string> Values = new List<string>();
@@ -447,28 +455,28 @@ namespace PaymentGateway.data
 
                     using (var reader = await getTable1Data.ExecuteReaderAsync())
                     {
-                        while (await reader.ReadAsync())
+                        using (var sw = new StreamWriter(fileHandler.openFile1))
                         {
-                            foreach (var item in reader)
+                            sw.WriteLine("P_UserID; P_TransactionID; M_UserID");
+
+                            while (await reader.ReadAsync())
                             {
-                                Values.Add(reader.GetString(0));
+                                sw.WriteLine("{0},{1},{2}", reader["P_UserID"], reader["P_TransactionID"], reader["M_UserID"]);
                             }
                         }
-
-                        await TabledataExport.writerCSV(Values, 1);
                     }
 
                     using (var reader = await getTable2Data.ExecuteReaderAsync())
                     {
-                        while (await reader.ReadAsync())
+                        using (var sw = new StreamWriter(fileHandler.openFile2))
                         {
-                            foreach (var item in reader)
+                            sw.WriteLine("P_UserID; M_UserID; UpdatedBalance; TimeOfTransaction");
+
+                            while (await reader.ReadAsync())
                             {
-                                Values.Add(reader.GetString(0));
+                                sw.WriteLine("{0},{1},{2},{3}", reader["P_UserID"], reader["M_UserID"], reader["UpdatedBalance"], reader["TimeOfTransaction"]);
                             }
                         }
-
-                        await TabledataExport.writerCSV(Values, 2);
                     }
                 }
 
@@ -476,6 +484,9 @@ namespace PaymentGateway.data
                 {
                     MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
                 }
+
+                //Closes the OpenFiles to clear memory :)
+                fileHandler.Dispose();
             }
         }
     }

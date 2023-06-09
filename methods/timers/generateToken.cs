@@ -1,4 +1,5 @@
 ﻿using Gateway.Logger;
+using PaymentGateway.Properties;
 using PaymentGateway.request;
 using PaymentGateway.request.response;
 using System;
@@ -14,10 +15,9 @@ namespace PaymentGateway.methods.timers
 
         internal static async Task AuthRefresh()
         {
-            if (!isActive) //Updated every 25 minutes
+            if (!isActive) 
             {
-                int msInterval = internalConfig.internalConfiguration.TokenExpire * 1000 - 300000;
-                aTimer = new System.Timers.Timer(msInterval);
+                aTimer = new System.Timers.Timer(Settings.Default.tokenTimer);
                 aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent2);
                 isActive = true;
                 aTimer.Start();

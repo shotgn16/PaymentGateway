@@ -24,9 +24,9 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\PaymentGateway
 DisableDirPage=no
 ChangesAssociations=yes
-DisableProgramGroupPage=yes
+DisableProgramGroupPage=no
 PrivilegesRequired=admin
-SetupIconFile=C:\Users\JackBarnard\source\repos\PaymentGateway_48\Resources\D13Solutions.ico
+SetupIconFile=C:\Users\JackBarnard\source\repos\PaymentGateway\PaymentGateway_48\Resources\D13Solutions.ico
 ;Password=myqrocks123
 Compression=lzma
 SolidCompression=yes
@@ -43,11 +43,11 @@ Name: "Norwegian"; MessagesFile: "compiler:Languages\Norwegian.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\JackBarnard\source\repos\PaymentGateway_48\bin\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\JackBarnard\source\repos\PaymentGateway_48\bin\Release\setupdatabase.bat"; DestDir: "{app}"; Flags: allowunsafefiles
-Source: "C:\Users\JackBarnard\source\repos\PaymentGateway_48\bin\Release\*"; DestDir: "{app}"; Flags: 64bit recursesubdirs createallsubdirs;
-source: "C:\Users\JackBarnard\source\repos\PaymentGateway_48\bin\Release\NLog.config"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\JackBarnard\source\repos\PaymentGateway_48\bin\Release\docs\README.html"; DestDir: "{app}\docs"; Flags: isreadme
+Source: "C:\Users\JackBarnard\source\repos\PaymentGateway\PaymentGateway_48\bin\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\JackBarnard\source\repos\PaymentGateway\PaymentGateway_48\bin\Release\setupdatabase.bat"; DestDir: "{app}"; Flags: allowunsafefiles
+Source: "C:\Users\JackBarnard\source\repos\PaymentGateway\PaymentGateway_48\bin\Release\*"; DestDir: "{app}"; Flags: 64bit recursesubdirs createallsubdirs;
+source: "C:\Users\JackBarnard\source\repos\PaymentGateway\PaymentGateway_48\bin\Release\NLog.config"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\JackBarnard\source\repos\PaymentGateway\PaymentGateway_48\bin\Release\docs\README.html"; DestDir: "{app}\docs"; Flags: isreadme
   
 [Registry]
 Root: HKA; Subkey: "Software\Classes\{#MyAppAssocExt}\OpenWithProgids"; ValueType: string; ValueName: "{#MyAppAssocKey}"; ValueData: ""; Flags: uninsdeletevalue

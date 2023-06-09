@@ -32,7 +32,7 @@ namespace PaymentGateway.methods
         {
             char[] charArray = "!@#$%^&*()".ToCharArray();
 
-            Console.WriteLine("Please provide a passowrd for the database of the following requirements...\n- At least 12 characters long\n- At least 1 special character\n- No whitespaces\n\n\nPlease note this password down as you may need it in the future. The database CANNOT be accessed without it!\n\nPassword: ");
+            Console.Write("Please provide a passowrd for the database of the following requirements...\n- At least 12 characters long\n- At least 1 special character\n- No whitespaces\n\n\nPlease note this password down as you may need it in the future. The database CANNOT be accessed without it!\n\nPassword: ");
             string pwd = Console.ReadLine();
 
             if (!string.IsNullOrWhiteSpace(pwd) || pwd.Length >= 12 || pwd.IndexOfAny(charArray) != -1) {
@@ -98,7 +98,35 @@ namespace PaymentGateway.methods
         internal static async Task export_DatabaseTables()
         {
             await db.getTableData();
+            Console.ReadLine();
             Environment.Exit(0);
+        }
+
+        internal static async Task setTimer()
+        {
+            Console.WriteLine("Which timer would you like to edit" + "\n\n" + " (A) Update MyQ with new ParentPay balance" + "\n" + " (B) Update Update ParentPay Till Balance" + "\n" + " (C) Generate new MyQ Auth Token" + "\n\n");
+            Console.Write("Choice: ");
+            string input = Console.ReadLine();
+
+            Console.Clear();
+
+            Console.Write("How long (Minutes) do you want between the timer running: ");
+            int Minutes = Convert.ToInt32(Console.ReadLine());
+
+            if (!string.IsNullOrEmpty(input))
+            {
+                switch (input)
+                {
+                    case "A":Settings.Default.myqTimer = (int)TimeSpan.FromMinutes(Minutes).TotalMilliseconds; break;
+                    case "B": Settings.Default.parentpayTimer = (int)TimeSpan.FromMinutes(Minutes).TotalMilliseconds; break;
+                    case "C": Settings.Default.tokenTimer = (int)TimeSpan.FromMinutes(Minutes).TotalMilliseconds; break;
+                }
+            }
+
+            Console.WriteLine("Timer Updated successfully!");
+            Thread.Sleep(5000);
+
+            System.Environment.Exit(0);
         }
     }
 }

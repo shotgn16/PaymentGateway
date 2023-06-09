@@ -288,7 +288,7 @@ namespace PaymentGateway.request
 
                     else if (result.SuccessState == 1 || result.SuccessState == 2)
                     {
-                        MyLogger.GetInstance().Error("Error: ", "Failed to update till balance. Will try again soon...");
+                        MyLogger.GetInstance().Warning("Warning: ", "Failed to update till balance. Will try again soon...");
                     }
                 }
             }

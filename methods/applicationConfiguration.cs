@@ -137,7 +137,7 @@ namespace PaymentGateway.methods
 
                         serializer.Formatting = Formatting.Indented;
 
-                        config1.whitelistedAddresses = new string[] { "PLEASE REPLACE ME WITH YOUR MYQ SERVER ADDRESS", "45.60.65.76", "45.60.72.226", "45.60.65.226" };
+                        config1.whitelistedAddresses = new string[] { await networkManagement.HostToIp("MYQ_SERVER_HOSTNAME/IP_GOES_HERE"), "45.60.65.76", "45.60.72.226", "45.60.65.226" };
 
                         MyLogger.GetInstance().Debug("ConfigManager serializing payload to configuration file");
 
@@ -257,7 +257,7 @@ namespace PaymentGateway.methods
 
         //-------------------- Database --------------------\\
         public string dbLocation
-        { get { return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"/PaymentGateway"; } set {} }
+        { get { return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\PaymentGateway"; } set {} }
 
         public void Dispose()
         {

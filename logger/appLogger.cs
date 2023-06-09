@@ -77,6 +77,11 @@ namespace Gateway.Logger
 
             using (StreamWriter file = File.AppendText(@"logs\appCrash.log"))
             {
+                string sysInfo = "PaymentGateway: " + Environment.Version + "\n" + "OSVersion: " + Environment.OSVersion + "\n" + "Processor Count: " 
+                    + Environment.ProcessorCount + "\n"
+                           + "WorkingDirectory: " + Environment.CurrentDirectory + "\n"+ "is64Bit: " + Environment.Is64BitOperatingSystem + "\n"
+                           + "PagefileSize: " + Environment.SystemPageSize + "\n" + "MappedMemory (Working Set): " + Environment.WorkingSet;
+
                 file.WriteLine("\n" + System.DateTime.Now.ToString() + "\n" + e.Message + "\n" + args.IsTerminating + "\n" + e.StackTrace + "\n" + e.Source);
             }
 

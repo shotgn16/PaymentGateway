@@ -1,4 +1,5 @@
 ﻿using Gateway.Logger;
+using PaymentGateway.Properties;
 using System;
 using System.Threading.Tasks;
 using System.Timers;
@@ -15,7 +16,8 @@ namespace PaymentGateway.methods.timers
             
             if (!isActive) //Updated every 13 minutes
             {
-                aTimer = new System.Timers.Timer(780000);
+                //5 Minutes
+                aTimer = new System.Timers.Timer(Settings.Default.myqTimer);
                 aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
                 isActive = true;
                 aTimer.Start();

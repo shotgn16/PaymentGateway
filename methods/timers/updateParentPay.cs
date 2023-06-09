@@ -4,6 +4,7 @@ using System.Timers;
 using Gateway.Logger;
 using PaymentGateway.request.response;
 using PaymentGateway.request;
+using PaymentGateway.Properties;
 
 namespace PaymentGateway.methods.timers
 {
@@ -20,7 +21,8 @@ namespace PaymentGateway.methods.timers
 
             if (!isActive) //Updated every 15 minutes
             {
-                uTimer = new System.Timers.Timer(900000);
+                //10 Minutes
+                uTimer = new System.Timers.Timer(Settings.Default.parentpayTimer);
                 uTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent2);
                 isActive = true;
                 uTimer.Start();
