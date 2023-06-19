@@ -12,11 +12,18 @@ using System.IdentityModel.Tokens;
 using Azure.Core;
 using System.IdentityModel;
 using System;
+using Microsoft.IdentityModel.Tokens;
+using System.Threading;
 
 namespace PaymentGateway.request
 {
     internal class microsoftGraph
     {
+        private static ClientSecretCredential clientSecretCredential;
+        private static TokenRequestContext tokenRequestContext;
+        private static ValueTask<AccessToken> response;
+        private static StringContent data;
+
         private static async Task<string> secretAuth()
         {
             var options = new TokenCredentialOptions
@@ -24,13 +31,13 @@ namespace PaymentGateway.request
                 AuthorityHost = AzureAuthorityHosts.AzurePublicCloud
             };
 
-            var clientSecretCredential = new ClientSecretCredential(
+            clientSecretCredential = new ClientSecretCredential(
                 applicationConfiguration.Credentials.AzureTenantID,
                 applicationConfiguration.Credentials.AzureClientID,
                 applicationConfiguration.Credentials.AzureClientSecret, options);
 
-            var tokenRequestContext = new TokenRequestContext(new[] { "https://graph.microsoft.com/.default" });
-            var response = clientSecretCredential.GetTokenAsync(tokenRequestContext);
+            tokenRequestContext = new TokenRequestContext(new[] { "https://graph.microsoft.com/.default" });
+            response = clientSecretCredential.GetTokenAsync(tokenRequestContext);
 
             return response.Result.Token;
         }
@@ -39,7 +46,7 @@ namespace PaymentGateway.request
         {
             try
             {
-                var data = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+                data = new StringContent(string.Empty, Encoding.UTF8, "application/json");
                 var url = "https://graph.microsoft.com/v1.0/users?$filter=displayName eq '" + consumerName + "'&$select=displayName," + applicationConfiguration.Credentials.AzureCustomAttribute;
                 response = await url.WithOAuthBearerToken(await secretAuth()).GetAsync().Result.ResponseMessage.Content.ReadAsStringAsync();
 
@@ -51,7 +58,7 @@ namespace PaymentGateway.request
 
             catch (FlurlHttpException ex)
             {
-                MyLogger.GetInstance().Error("Error: ", ex.Message + ex.StackTrace);
+                MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
             }
 
             return response;
@@ -72,6 +79,14 @@ namespace PaymentGateway.request
                 returnValue = false;
 
             return returnValue;
+        }
+
+        public static void Dispose()
+        {
+            clientSecretCredential = null;
+            data.Dispose();
+
+            GC.Collect();
         }
     }
 }

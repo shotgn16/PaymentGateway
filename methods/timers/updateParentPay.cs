@@ -1,17 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
-using PaymentGateway.methods;
 using Gateway.Logger;
-using NLog;
-using Org.BouncyCastle.Security;
 using PaymentGateway.request.response;
 using PaymentGateway.request;
+using PaymentGateway.Properties;
 
 namespace PaymentGateway.methods.timers
 {
@@ -19,24 +12,47 @@ namespace PaymentGateway.methods.timers
     {
         //Default to 7am - 6pm
         private static System.Timers.Timer uTimer;
+        private static bool isActive = false;
         public static xmlUtility.HandleSimplePaymentReportResult xml;
 
         public static async Task newTillBalance(xmlUtility.HandleSimplePaymentReportResult XML)
         {
             xml = XML;
 
-            uTimer = new System.Timers.Timer(60000);
-            uTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent2);
-            uTimer.Enabled = true;
-            uTimer.Stop();
+            if (!isActive) //Updated every 15 minutes
+            {
+                //10 Minutes
+                uTimer = new System.Timers.Timer(Settings.Default.parentpayTimer);
+                uTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent2);
+                isActive = true;
+                uTimer.Start();
+
+                MyLogger.GetInstance().Info("Starting Timer #002");
+            }
+
+            else if (isActive)
+            {
+                MyLogger.GetInstance().Info("Timer #002 Active! Skipping activation...");
+            }
         }
 
         internal static async void OnTimedEvent2(object source, ElapsedEventArgs e)
         {
-            MyLogger.GetInstance().Info("Updating Till balance");
+            uTimer.Stop();
+            isActive = false;
 
             var xmlResponse = (xmlUtility.HandleMessageUpdateRequestResult)await soap.httpSoap("handleMessageUpdateRequest");
 
+            //Clearing the response data from memory as its not needed...
+            xmlResponse = null;
+            GC.Collect();
+        }
+
+        public static void Dispose()
+        {
+            uTimer.Dispose();
+            xml = null;
+            GC.Collect();
         }
     }
 }

@@ -8,6 +8,7 @@ using PaymentGateway.request;
 using PaymentGateway.request.response;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static PaymentGateway.request.response.graphUtility;
@@ -18,11 +19,11 @@ namespace PaymentGateway
     {
         static async Task Main(string[] args)
         {
-            await programIniation.checkArguments(args);
-
             //Creates an UnhandledExceptionEventHandler for logging crash reports
             AppDomain currentDomain = AppDomain.CurrentDomain;
             currentDomain.UnhandledException += new UnhandledExceptionEventHandler(crashLogger.OnException);
+
+            await programIniation.checkArguments(args);
 
             //Functionality: Checks whether the program has started with administrator rights and prompts to restart if not.
             //If the program is started with admin, the a prompt will appear asking for a password to encrypt the database with. After entry, password is checked to ensure its strong enough.

@@ -11,7 +11,7 @@ namespace PaymentGateway.methods
     {
         public static async Task<decimal> PenceToPounds(decimal Pence)
         {
-            MyLogger.GetInstance().Debug("CurrencyConverter converting {0} pence...", await data.DatabaseHash.dbEncrypt(Pence.ToString(), 2));
+            MyLogger.GetInstance().Debug("CurrencyConverter converting {0} pence...", await data.hash.dbEncrypt(Pence.ToString(), 2));
 
             decimal result = Pence / 100;
 

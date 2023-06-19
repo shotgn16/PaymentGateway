@@ -12,10 +12,10 @@ Global
 		Testing|Any CPU = Testing|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C3780F6E-86E6-435A-BF9A-43C1833AFFF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C3780F6E-86E6-435A-BF9A-43C1833AFFF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C3780F6E-86E6-435A-BF9A-43C1833AFFF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C3780F6E-86E6-435A-BF9A-43C1833AFFF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3780F6E-86E6-435A-BF9A-43C1833AFFF8}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{C3780F6E-86E6-435A-BF9A-43C1833AFFF8}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{C3780F6E-86E6-435A-BF9A-43C1833AFFF8}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3780F6E-86E6-435A-BF9A-43C1833AFFF8}.Release|Any CPU.Build.0 = Debug|Any CPU
 		{C3780F6E-86E6-435A-BF9A-43C1833AFFF8}.Testing|Any CPU.ActiveCfg = Testing|Any CPU
 		{C3780F6E-86E6-435A-BF9A-43C1833AFFF8}.Testing|Any CPU.Build.0 = Testing|Any CPU
 	EndGlobalSection

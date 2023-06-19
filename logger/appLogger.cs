@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Security;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
 
@@ -69,16 +70,28 @@ namespace Gateway.Logger
 
     public class crashLogger
     {
+        private static Exception e;
         public static async void OnException(object sender, UnhandledExceptionEventArgs args)
         {
-            Exception e = (Exception)args.ExceptionObject;
+            e = (Exception)args.ExceptionObject;
 
             using (StreamWriter file = File.AppendText(@"logs\appCrash.log"))
             {
+                string sysInfo = "PaymentGateway: " + Environment.Version + "\n" + "OSVersion: " + Environment.OSVersion + "\n" + "Processor Count: " 
+                    + Environment.ProcessorCount + "\n"
+                           + "WorkingDirectory: " + Environment.CurrentDirectory + "\n"+ "is64Bit: " + Environment.Is64BitOperatingSystem + "\n"
+                           + "PagefileSize: " + Environment.SystemPageSize + "\n" + "MappedMemory (Working Set): " + Environment.WorkingSet;
+
                 file.WriteLine("\n" + System.DateTime.Now.ToString() + "\n" + e.Message + "\n" + args.IsTerminating + "\n" + e.StackTrace + "\n" + e.Source);
             }
 
             await supportData.generateDataFile();
+        }
+
+        public void Dispose()
+        {
+            e = null;
+            GC.Collect();
         }
     }
 }

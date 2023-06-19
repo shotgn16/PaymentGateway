@@ -3,19 +3,22 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
+using System.Windows.Forms;
+using Gateway.Logger;
 using ICSharpCode.SharpZipLib.Zip;
 
 namespace PaymentGateway.data
 {
     public class supportData
     {
+        private static ZipEntry entry;
         //A static string containing the location of a Zip file to be created.
-        public static string zipPath = "Support\\SupportFile.zip";
+        private static string zipPath = "Support\\SupportFile.zip";
 
         //A method that will create a zip file using the specified path above. The file will contain all the logs located in the 'logs' directory of the application.
         public static async Task generateDataFile()
         {
+            //Checks if the DIR exists and if not creates it.
             await createDirectory();
 
             //Getting content of the 'logs' folder.
@@ -29,7 +32,7 @@ namespace PaymentGateway.data
 
                 foreach (string file in filenames)
                 {
-                    ZipEntry entry = new ZipEntry(Path.GetFileName(file));
+                    entry = new ZipEntry(Path.GetFileName(file));
 
                     entry.DateTime = DateTime.Now;
                     OutputStream.PutNextEntry(entry);
@@ -37,7 +40,6 @@ namespace PaymentGateway.data
                     using (FileStream fs = File.OpenRead(file))
                     {
                         int sourceBytes;
-
                         do
                         {
                             sourceBytes = fs.Read(buffer, 0, buffer.Length);
@@ -60,5 +62,10 @@ namespace PaymentGateway.data
                 Directory.CreateDirectory(currentPath + "/Support");
         }
 
+        public static void Dispose()
+        {   
+            entry = null;
+            GC.Collect();
+        }
     }
 }
