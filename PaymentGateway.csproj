@@ -348,6 +348,8 @@
     <Compile Include="methods\networkManagement.cs" />
     <Compile Include="methods\programIniation.cs" />
     <Compile Include="methods\recharger.cs" />
+    <Compile Include="request\httpClient.cs" />
+    <Compile Include="request\httpWrapper.cs" />
     <Compile Include="request\response\securityManagement.cs" />
     <Compile Include="methods\timers\generateToken.cs" />
     <Compile Include="methods\timers\updateMyQ.cs" />
@@ -363,7 +365,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="request\buildRequest.cs" />
-    <Compile Include="request\customClient.cs" />
     <Compile Include="request\microsoftGraph.cs" />
     <Compile Include="request\response\graphUtility.cs" />
     <Compile Include="request\response\restUtility.cs" />
@@ -373,6 +374,7 @@
     <Compile Include="request\response\xmlUtility.cs" />
     <Compile Include="request\rest.cs" />
     <Compile Include="request\soap.cs" />
+    <Compile Include="request\soapv3.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -414,6 +416,7 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if not exist docs mkdir docs

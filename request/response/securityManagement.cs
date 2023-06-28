@@ -44,23 +44,30 @@ namespace PaymentGateway.methods
         {
             try
             {
-                if (address.Contains(".com")){
+                if (applicationConfiguration.Credentials.whitelistedAddresses.Contains(address))
+                    trustedAddress = true;
+
+                else if (address.Contains(".com") || address.Contains(".co.uk")) {
                     address = await GetDomain(address);
                 }
 
-                address = networkManagement.HostToIp(address).Result;
+                else if (address.Contains(".local")) {
+                    address = networkManagement.HostToIp(address).Result;
 
-                //Disposing
-                networkManagement.Dispose();
-
-                if (applicationConfiguration.Credentials.whitelistedAddresses.Contains(address)){
-                    trustedAddress = true;
+                    if (applicationConfiguration.Credentials.whitelistedAddresses.Contains(address))
+                        trustedAddress = true;
                 }
             }
 
             catch (Exception ex){
                 MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
+
+                //Disposing
+                networkManagement.Dispose();
             }
+
+            //Disposing
+            networkManagement.Dispose();
 
             return Task.FromResult(trustedAddress).Result;
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.UI.WebControls;
 using Gateway.Logger;
 using Microsoft.Graph.Models;
 using PaymentGateway.cleanup;
@@ -13,6 +14,7 @@ namespace PaymentGateway.methods
     public class recharger
     {
         public static soap soapInstance;
+        public static soapv3 _instance;
 
         public static async Task AuthenticationPack(xmlUtility.HandleSimplePaymentReportResult PaymentReport = null)
         {
@@ -25,16 +27,17 @@ namespace PaymentGateway.methods
                 //Creating a new instance of the soap class, used to retrieve the ParentPay bulkpaymentdata
 
                 soapInstance = new soap();
+                _instance = new soapv3();
 
                 //Calling the 'httpSoap' request and returning an 'Object' but casting it as a type: 'xmlUtility.HandleSimplePaymentReportResult', which is the PaymentReport class
-                PaymentReport = (xmlUtility.HandleSimplePaymentReportResult)await soap.httpSoap("handleSimplePaymentReport");
+                PaymentReport = (xmlUtility.HandleSimplePaymentReportResult)await _instance.QueryParentPay("handleSimplePaymentReport");
 
                 //Calling the REST API to retrieve the raw certificate from the MyQ server and storing it in the 'cert' variable.
                 //passing the 'cert' variable into a method designed to check if it's null or not then pass to be converted to an X509 type certificate for installiation.
-                await restUtility.root8Parse(await flurlRest.getCertificate().Result.ResponseMessage.Content.ReadAsStringAsync());
+                await restUtility.root8Parse(await flurlRest.getCertificate());
 
                 //Calling the REST API to generate a new MyQ access_token and passing the immediate result into a method to validate and deserialize the result into a pre-defined class.
-                await restUtility.root1Parse(await flurlRest.getToken().Result.ResponseMessage.Content.ReadAsStringAsync());
+                await restUtility.root1Parse(await flurlRest.getToken());
 
                 //Calling a new Task factory to run start a timer in the background. This timer, once finished will run the current method again, retarting the timer again.
                 //Need to check if a timer is already running...
@@ -84,7 +87,7 @@ namespace PaymentGateway.methods
                 //Calling the REST API to get user information from MyQ regarding the current user. - Passing in their usernamename(ConsumerName) and Identifier(UserID)
                 await restUtility.rootParse(await flurlRest.getUserInfo(
                 XML.PaymentArray.PaymentVO[internalConfig.internalConfiguration.GlobalNum].ConsumerName,
-                XML.PaymentArray.PaymentVO[internalConfig.internalConfiguration.GlobalNum].Identifier.ToString()).Result.ResponseMessage.Content.ReadAsStringAsync());
+                XML.PaymentArray.PaymentVO[internalConfig.internalConfiguration.GlobalNum].Identifier.ToString()));
             }
 
             catch (Exception ex)
@@ -110,9 +113,6 @@ namespace PaymentGateway.methods
                 //Assigning the MyQ UserID to a local variable named 'myqUserID'.
                 string myqUserID = await data.hash.dbEncrypt(internalConfig.internalConfiguration.UserID, 0);
 
-                //Performing a database operation to insert the current transaction into the database.
-                await data.db.newTransaction(parentpayUserID, transactionID, myqUserID);
-
                 //Performing a database request to get a list of all transactions where the 'ParentPayUserID', 'ParentPayTransactionID' and 'MyQUserID' match. The result is returned as a true or false as to whether any payments exist (bool)
                 bool transactionExists = await data.db.getUserTransactions(parentpayUserID, transactionID, myqUserID);
 
@@ -136,16 +136,23 @@ namespace PaymentGateway.methods
             try
             {
                 //Calling on the REST API to get a list of recharge providers available for this user on the MyQ server and passing the immediate result into a deserialization method.
-                await restUtility.root4Parse(await flurlRest.getRechargeProviders().Result.ResponseMessage.Content.ReadAsStringAsync());
+                await restUtility.root4Parse(await flurlRest.getRechargeProviders());
 
                 //Calling on the REST API to create a new recharge request with a specific balance that will have been previously specified, passing the returned body, including a request ID, into a deserialization method.
-                await restUtility.root5Parse(await flurlRest.createRechargeRequest().Result.ResponseMessage.Content.ReadAsStringAsync());
+                await restUtility.root5Parse(await flurlRest.createRechargeRequest());
 
                 //Calling on the REST API to confirm the initial recharge request and commit it into the system, passing the returned data into a deserialization method where it will be validated.
-                await restUtility.root6Parse(await flurlRest.commitRechargeRequest().Result.ResponseMessage.Content.ReadAsStringAsync());
+                await restUtility.root6Parse(await flurlRest.commitRechargeRequest());
 
                 //Calling on the REST API to get a list of all past payments for the current user, where it's response is passed into a deserialization where the data is validated as to whether or not the latest payment went through or not.
-                await restUtility.root3Parse(await flurlRest.getPayments().Result.ResponseMessage.Content.ReadAsStringAsync());
+                await restUtility.root3Parse(await flurlRest.getPayments());
+
+
+                //Performing a database operation to insert the NEW transaction into the database.
+                await data.db.newTransaction(
+                    await data.hash.dbEncrypt(xml.PaymentArray.PaymentVO[internalConfig.internalConfiguration.GlobalNum].Identifier.ToString(), 1), 
+                    await data.hash.dbEncrypt(xml.PaymentArray.PaymentVO[internalConfig.internalConfiguration.GlobalNum].PaymentId.ToString(), 3),
+                    await data.hash.dbEncrypt(internalConfig.internalConfiguration.UserID, 0));
             }
 
             catch (Exception ex)
@@ -160,7 +167,7 @@ namespace PaymentGateway.methods
         private static async Task UpdateCredit(soap Soap, xmlUtility.HandleSimplePaymentReportResult xml)
         {
             //Calling on the REST API to get the users updated credit value, passing the retuned request response into a deserialization method that will validate it then store the new balance for further use.
-            await restUtility.root7Parse(await flurlRest.getUsersCredit().Result.ResponseMessage.Content.ReadAsStringAsync());
+            await restUtility.root7Parse(await flurlRest.getUsersCredit());
 
             //Storing the ParentPay UserID in a local variable called 'parentpayUserID'.
             string parentpayUserID = await data.hash.dbEncrypt(xml.PaymentArray.PaymentVO[internalConfig.internalConfiguration.GlobalNum].Identifier.ToString(), 1);

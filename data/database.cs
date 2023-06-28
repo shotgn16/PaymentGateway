@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
-using System.Security.Cryptography;
-using System.Text;
 using System.IO;
 using System.Data;
 using System.Collections.Generic;
 using System.Linq;
 using Gateway.Logger;
 using System.Data.SqlServerCe;
-using System.Windows.Forms;
 using PaymentGateway.methods;
-using System.Data.Entity;
 using PaymentGateway.Properties;
 
 namespace PaymentGateway.data
@@ -186,11 +182,11 @@ namespace PaymentGateway.data
                             //If no tables are found, '0' is returned and the 'executeQuery()' method is called, passing in a query to create the 'transaction' table.
                             if (reader.GetInt32(0) == 0)
                             {
-                                MyLogger.GetInstance().Debug("Table = 'transactionHistory' not found! Creating table...");
+                                MyLogger.GetInstance().Debug("Table 'transactionHistory' not found! Creating table...");
 
                                 MyLogger.GetInstance().Debug("Creating database table 'transactionHistory'");
 
-                                await executeQuery("CREATE TABLE transactionHistory (P_UserID nvarchar(50), M_UserID nvarchar(50)), P_TransactionID nvarchar(50)", connection);
+                                await executeQuery("CREATE TABLE transactionHistory (P_UserID nvarchar(50), M_UserID nvarchar(50), P_TransactionID nvarchar(50), M_TransactionID nvarchar(50));", connection);
                             }
                         }
                     }
@@ -204,7 +200,7 @@ namespace PaymentGateway.data
                             //If no tables are found, '0' is returned and the 'executeQuery()' method is called, passing in a query to create the 'creditTransactions' table.
                             if (reader.GetInt32(0) == 0)
                             {
-                                MyLogger.GetInstance().Debug("Table = 'creditTransactions' not found! Creating table...");
+                                MyLogger.GetInstance().Debug("Table 'creditTransactions' not found! Creating table...");
 
                                 MyLogger.GetInstance().Debug("Creating database table 'creditTransactions'");
 
@@ -237,6 +233,8 @@ namespace PaymentGateway.data
                 {
                     command.CommandText = query;
                     command.Connection = connection;
+
+                    //BUG - Crashes here when trying to create database tables
                     command.ExecuteNonQuery();
 
                     //Don't close connection - Connection is shared!
@@ -252,7 +250,7 @@ namespace PaymentGateway.data
             }
         }
 
-        public static async Task newTransaction(string P_UserID, string P_TtansactionID, string M_UserID)
+        public static async Task newTransaction(string P_UserID, string P_TransactionID, string M_UserID)
         {
             using (var connection = await CreateConnection(db.dbPasswod))
             {
@@ -265,7 +263,7 @@ namespace PaymentGateway.data
                         command.CommandText = "INSERT INTO transactionHistory (P_UserID, M_UserID, P_TransactionID) VALUES (@UserID, @M_UserID, @P_TransactionID)";
 
                         command.Parameters.AddWithValue("@UserID", P_UserID);
-                        command.Parameters.AddWithValue("@P_TransactionID", P_TtansactionID);
+                        command.Parameters.AddWithValue("@P_TransactionID", P_TransactionID);
                         command.Parameters.AddWithValue("@M_UserID", M_UserID);
 
                         command.ExecuteNonQuery();
@@ -295,7 +293,11 @@ namespace PaymentGateway.data
                 {
                     try
                     {
-                        command.CommandText = "SELECT * FROM transactionHistory WHERE P_UserID = '" + P_UserID + "' AND P_TransactionID = '" + P_TransactionID + "' AND M_UserID = '" + M_UserID + "'";
+                        command.CommandText = "SELECT * FROM transactionHistory WHERE P_UserID = '@P_UserID' AND P_TransactionID = '@P_TransactionID' AND M_UserID = '@M_UserID'";
+
+                        command.Parameters.AddWithValue("@P_UserID", P_UserID);
+                        command.Parameters.AddWithValue("@P_TransactionID", P_TransactionID);
+                        command.Parameters.AddWithValue("@M_UserID", M_UserID);
 
                         using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -360,6 +362,7 @@ namespace PaymentGateway.data
             }
         }
 
+        //TODO - Test this works [Command Parameters]
         public static async Task<decimal> getLatestTillBalance(string P_UserID, string M_UserID, decimal balance = 0.0M)
         {
             List<string> dt = new List<string>();
@@ -373,7 +376,10 @@ namespace PaymentGateway.data
                 {
                     try
                     {
-                        command.CommandText = "SELECT * FROM creditTransactions WHERE M_UserID = '" + P_UserID + "' AND P_UserID = '" + P_UserID + "'";
+                        command.CommandText = "SELECT * FROM creditTransactions WHERE M_UserID = '@M_UserID' AND P_UserID = '@P_UserID'";
+
+                        command.Parameters.AddWithValue("@M_UserID", M_UserID);
+                        command.Parameters.AddWithValue("@P_UserID", P_UserID);
 
                         using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -405,6 +411,7 @@ namespace PaymentGateway.data
             return balance;
         }
 
+        //This method is designed to get around some limitation that SqlCE has that restricts me from implementing 
         private static async Task<string> parseLateatTransaction(List<string> dt, List<string> balance, int pos = 0)
         {
             List<DateTime> time = new List<DateTime>();

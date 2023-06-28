@@ -1,5 +1,6 @@
 ﻿using ApiTest.Logger;
 using Gateway.Logger;
+using Org.BouncyCastle.Tls;
 using PaymentGateway.data;
 using PaymentGateway.Properties;
 using System;
@@ -121,6 +122,8 @@ namespace PaymentGateway.methods
                     case "B": Settings.Default.parentpayTimer = (int)TimeSpan.FromMinutes(Minutes).TotalMilliseconds; break;
                     case "C": Settings.Default.tokenTimer = (int)TimeSpan.FromMinutes(Minutes).TotalMilliseconds; break;
                 }
+
+                Settings.Default.Save();
             }
 
             Console.WriteLine("Timer Updated successfully!");

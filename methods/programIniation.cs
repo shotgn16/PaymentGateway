@@ -85,6 +85,11 @@ namespace PaymentGateway.methods
                 await arguments.setTimer();
             }
 
+            else if (args.Contains("-sdb"))
+            {
+                await db.setupDatabase();
+            }
+
             //Arguments:
             // (-e) Create AppConfig.json
             // (-s) Generates a support file
@@ -92,7 +97,7 @@ namespace PaymentGateway.methods
             // (-o) Outputs the database password to the console
             // (-dbe) Exports each database table as a .csv file
             // (-t) Set time for timers
-
+            // (-sdb) Setup database manually
         }
 
         public static void Dispose()

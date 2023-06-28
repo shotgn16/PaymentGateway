@@ -20,8 +20,11 @@ namespace PaymentGateway.request
             string _endpoint = EndpointBuilder(_endpointID).Result;
             var url = await urlBuilder(_endpointID);
 
-            if (_endpointID >= 10) { returnValue = url; }
-            else { returnValue = url + _endpoint; }
+            if (_endpointID >= 10)
+              returnValue = url;
+
+            else 
+              returnValue = url + _endpoint;
 
             MyLogger.GetInstance().Debug("Returning built url...");
 
@@ -30,16 +33,22 @@ namespace PaymentGateway.request
 
         internal static async Task<string> urlBuilder(int _endpointID, string returnValue = null)
         {
-            if (_endpointID >= 10) { returnValue = "http://www.pay24-7.com/P247WS/PubMethods/"; }
-            else if (_endpointID <= 9) { returnValue = await restUrl(_endpointID); }
+            if (_endpointID >= 10)
+                returnValue = "http://www.pay24-7.com/P247WS/PubMethods/";
+
+            else if (_endpointID <= 9)
+                returnValue = await restUrl(_endpointID);
 
             return returnValue;
         }
 
         internal static async Task<string> restUrl(int _endpointID)
         {
-            if (_endpointID == 2) { return $"http://{applicationConfiguration.Credentials.ServerAddress}:8090/"; }
-            else { return $"https://{applicationConfiguration.Credentials.ServerAddress}:8090/"; }
+            if (_endpointID == 2)
+             return $"http://{applicationConfiguration.Credentials.ServerAddress}:8090/";
+            
+            else
+             return $"https://{applicationConfiguration.Credentials.ServerAddress}:8090/";
         }
 
         internal static async Task<string> EndpointBuilder(int _endpointID)
@@ -65,9 +74,11 @@ namespace PaymentGateway.request
 
         internal static async Task<string> endpointBuilder(string _endpoint)
         {
-            if (_endpoint.Contains("{paymentID}")) { _endpoint = _endpoint.Replace("{paymentID}", internalConfig.internalConfiguration.PaymentID); }
+            if (_endpoint.Contains("{paymentID}"))
+                _endpoint = _endpoint.Replace("{paymentID}", internalConfig.internalConfiguration.PaymentID);
 
-            if (_endpoint.Contains("{userID}")) { _endpoint = _endpoint.Replace("{userID}", internalConfig.internalConfiguration.UserID); }
+            if (_endpoint.Contains("{userID}"))
+                _endpoint = _endpoint.Replace("{userID}", internalConfig.internalConfiguration.UserID);
 
             return _endpoint;
         }

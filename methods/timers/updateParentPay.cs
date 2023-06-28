@@ -38,13 +38,18 @@ namespace PaymentGateway.methods.timers
 
         internal static async void OnTimedEvent2(object source, ElapsedEventArgs e)
         {
+            xmlUtility.HandleMessageUpdateRequestResult result = null;
+
             uTimer.Stop();
             isActive = false;
 
-            var xmlResponse = (xmlUtility.HandleMessageUpdateRequestResult)await soap.httpSoap("handleMessageUpdateRequest");
+            using (var soap = new soapv3())
+            {
+                result = (xmlUtility.HandleMessageUpdateRequestResult)await soap.QueryParentPay("handleMessageUpdateRequest");
+            }
 
             //Clearing the response data from memory as its not needed...
-            xmlResponse = null;
+            result = null;
             GC.Collect();
         }
 

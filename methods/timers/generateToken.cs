@@ -38,7 +38,7 @@ namespace PaymentGateway.methods.timers
             
             MyLogger.GetInstance().Info("Timer, ID: #001 Complete!");
             MyLogger.GetInstance().Info("Authentication Generating New Token");
-            await restUtility.root1Parse(await flurlRest.getToken().Result.ResponseMessage.Content.ReadAsStringAsync());
+            await restUtility.root1Parse(await flurlRest.getToken());
 
             //Clean up resources
             GC.Collect();

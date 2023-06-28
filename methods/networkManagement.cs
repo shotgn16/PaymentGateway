@@ -16,7 +16,7 @@ namespace PaymentGateway.methods
             {
                 MyLogger.GetInstance().Debug("NetworkConversion verifing host type");
 
-                if (address.Contains("-") || address.Contains(".com"))
+                if (address.Contains("-") || address.Contains(".com") || address.Contains(".co.uk"))
                 {
                     MyLogger.GetInstance().Debug("NetworkConversion getting IP address");
 

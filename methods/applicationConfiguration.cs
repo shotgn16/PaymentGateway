@@ -137,7 +137,7 @@ namespace PaymentGateway.methods
 
                         serializer.Formatting = Formatting.Indented;
 
-                        config1.whitelistedAddresses = new string[] { await networkManagement.HostToIp("MYQ_SERVER_HOSTNAME/IP_GOES_HERE"), "45.60.65.76", "45.60.72.226", "45.60.65.226" };
+                        config1.whitelistedAddresses = new string[] { "MYQ_SERVER_HOSTNAME/IP_GOES_HERE", "45.60.65.76", "45.60.72.226", "45.60.65.226" };
 
                         MyLogger.GetInstance().Debug("ConfigManager serializing payload to configuration file");
 
@@ -248,8 +248,7 @@ namespace PaymentGateway.methods
         public XmlDocument XmlBody = new XmlDocument();
         public int IncrementThroughUsers { get; set; }
         public int GlobalNum { get; set; }
-        public string handleSimplePaymentReport { get { return "http://www.parentpay.com/P247WS/PubMethods/handleSimplePaymentReport"; } }
-        public string handleMessageUpdateRequest { get { return "http://www.parentpay.com/P247WS/PubMethods/handleMessageUpdateRequest"; } }
+        public string ParentPayRequestURL { get { return "http://www.parentpay.com/P247WS/PubMethods/"; } }
 
         //-------------------- Iteration --------------------\\
 
