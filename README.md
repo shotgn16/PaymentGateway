@@ -12,15 +12,19 @@ Write down general information about your project. It is a good idea to always p
 ## Technologies
 ***
 A list of technologies used within the project:
+* Azure.Core(https://www.nuget.org/packages/Azure.Core): 1.34.0
+* Azure.Identity(https://www.nuget.org/packages/Azure.Identity): 1.9.0
+* CsvHelper(https://joshclose.github.io/CsvHelper/): 30.0.1
 * Flurl(https://flurl.dev/): Version 3.0.7 
 * Flurl.Http(https://flurl.dev/): Version 3.2.4
-* MailKit(http://www.mimekit.net/): Version: 3.6.0
-* MimeKit(http://www.mimekit.net/): Version: 3.6.0
+* MailKit(http://www.mimekit.net/): Version: 4.1.0
+* MimeKit(http://www.mimekit.net/): Version: 4.1.0
 * Microsoft.SqlServer.Compact(https://www.microsoft.com/en-gb/download/details.aspx?id=30709): Version: 4.0.8876.1
 * Newtonsoft.Json(https://www.newtonsoft.com/json): Version: 13.0.3
-* NLog(https://nlog-project.org): Version: 5.1.2
+* NLog(https://nlog-project.org): Version: 5.2.2
+* NLog.DiagnosticSource(https://nlog-project.org): Version 5.0.0
 * Nlog.MailKit(https://github.com/NLog/NLog.MailKit): Version: 5.0.0
-* Portable.BouncyCastle(https://www.bouncycastle.org/csharp/): Version: 1.9.0
+* Portable.BouncyCastle(https://www.bouncycastle.org/csharp/): Version: 2.2.1
 * SharpZipLib(https://github.com/icsharpcode/SharpZipLib): Version: 1.4.2
 
 ## Installation
