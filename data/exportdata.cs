@@ -1,9 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PaymentGateway.data
@@ -16,7 +13,7 @@ namespace PaymentGateway.data
             {
                 get
                 {
-                    return DatabaseHash.dbEncrypt(Properties.Settings.Default.dbPassword, 5).Result;
+                    return hash.dbEncrypt(Properties.Settings.Default.dbPassword, 5).Result;
                 
                 } set {}
             }
@@ -46,6 +43,24 @@ namespace PaymentGateway.data
         {
             dbPassword dbPassword = new dbPassword();
             File.WriteAllText(@"./AppConfig.json", JsonConvert.SerializeObject(dbPassword));
+
+            //Dispose automatically after creating the file
+            dbPassword = null;
+            GC.Collect();
+        }
+    }
+
+    internal class TabledataExport
+    {
+        internal static async Task buildExportFiles()
+        {
+            string exportFile_1 = @"table1.csv";
+            string exportFile_2 = @"table2.csv";
+
+            await fileHandler.checkFileExists(exportFile_1);
+            await fileHandler.checkFileExists(exportFile_2);
+
+            await fileHandler.OpenLockFile(exportFile_1, exportFile_2);
         }
     }
 }

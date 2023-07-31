@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Threading.Tasks;
-using PaymentGateway.exceptions;
 using Formatting = Newtonsoft.Json.Formatting;
 using System.Xml;
 using System.Windows.Forms;
@@ -54,10 +53,19 @@ namespace PaymentGateway.methods
         {
             return (Credentials as IEnumerable).GetEnumerator();
         }
+
+        public void Dispose()
+        {
+            applicationConfiguration.Credentials.Dispose();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
     }
     public class configurationLoader
     {
         private static string config1File = @"./config/config.json";
+        internal static applicationConfiguration config1 = new applicationConfiguration();
+        internal static applicationConfiguration payload = null;
 
         public static async Task LoadDetails()
         {
@@ -67,8 +75,6 @@ namespace PaymentGateway.methods
             }
 
             MyLogger.GetInstance().Debug("ConfigManager creating payload instance");
-
-            applicationConfiguration config1 = new applicationConfiguration();
 
             try
             {
@@ -83,7 +89,7 @@ namespace PaymentGateway.methods
                     {
                         MyLogger.GetInstance().Debug("ConfigManager deserializing payload");
 
-                        var payload = JsonConvert.DeserializeObject<applicationConfiguration>(File.ReadAllText(config1File));
+                        payload = JsonConvert.DeserializeObject<applicationConfiguration>(File.ReadAllText(config1File));
                         MyLogger.GetInstance().Info("ConfigFileLoaded {0}", config1File);
 
                         MyLogger.GetInstance().Debug("ConfigManager assigning payload");
@@ -98,6 +104,9 @@ namespace PaymentGateway.methods
                         await loggerConfig.SetupNLog();
 
                         MyLogger.GetInstance().Info("ServerAddress, {0}", networkManagement.HostToIp(applicationConfiguration.Credentials.ServerAddress).Result);
+
+                        //Disposing
+                        networkManagement.Dispose();
                     }
                 }
 
@@ -128,7 +137,7 @@ namespace PaymentGateway.methods
 
                         serializer.Formatting = Formatting.Indented;
 
-                        config1.whitelistedAddresses = new string[] { "PLEASE REPLACE ME WITH YOUR MYQ SERVER ADDRESS", "45.60.65.76", "45.60.72.226", "45.60.65.226" };
+                        config1.whitelistedAddresses = new string[] { "MYQ_SERVER_HOSTNAME/IP_GOES_HERE", "45.60.65.76", "45.60.72.226", "45.60.65.226" };
 
                         MyLogger.GetInstance().Debug("ConfigManager serializing payload to configuration file");
 
@@ -142,15 +151,25 @@ namespace PaymentGateway.methods
 
             catch (Exception ex)
             {
-                var exception = new ApplicationConfiguration(ex.ToString());
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
             }
+        }
+
+        public void Dispose()
+        {
+            config1.Dispose();
+            payload.Dispose();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
     }
 
-    public class myqConfiguration
+    public class internalConfig
     {
-        public static myqConfiguration MyQ = new myqConfiguration();
+        public static internalConfig internalConfiguration = new internalConfig();
+
+        //-------------------- MyQ --------------------\\
+
         public int AuthenticationType { get { return 2; } set { } }
         public string GrantType { get { return "client_credentials"; } set { } }
         public string Scope
@@ -209,7 +228,7 @@ namespace PaymentGateway.methods
         {
             get
             {
-                return "{\"grant_type\":\"" + myqConfiguration.MyQ.GrantType + "\",\"scope\":\"" + myqConfiguration.MyQ.Scope + "\",\"client_id\":\"" + applicationConfiguration.Credentials.ClientID + "\",\"client_secret\":\"" + applicationConfiguration.Credentials.ClientSecret + "\"}";
+                return "{\"grant_type\":\"" + internalConfig.internalConfiguration.GrantType + "\",\"scope\":\"" + internalConfig.internalConfiguration.Scope + "\",\"client_id\":\"" + applicationConfiguration.Credentials.ClientID + "\",\"client_secret\":\"" + applicationConfiguration.Credentials.ClientSecret + "\"}";
 
             }
             set { }
@@ -222,22 +241,28 @@ namespace PaymentGateway.methods
                 return "{\"userId\": " + Convert.ToInt32(UserID) + " ,\"description\": \"ParentPay Transaction\",\"params\": {\"amount\": " + Amount + " }}";
             }
         }
-    }
 
-    public class parentpayConfiguration
-    {
-        public static parentpayConfiguration ParentPay = new parentpayConfiguration();
+        //-------------------- ParentPay --------------------\\
+
         public int UserIdentifier { get; set; }
         public XmlDocument XmlBody = new XmlDocument();
         public int IncrementThroughUsers { get; set; }
         public int GlobalNum { get; set; }
-        public string handleSimplePaymentReport { get { return "http://www.parentpay.com/P247WS/PubMethods/handleSimplePaymentReport"; } }
-        public string handleMessageUpdateRequest { get { return "http://www.parentpay.com/P247WS/PubMethods/handleMessageUpdateRequest"; } }
-    }
+        public string ParentPayRequestURL { get { return "http://www.parentpay.com/P247WS/PubMethods/"; } }
 
-    public class iterationConfig
-    {
-        public static iterationConfig Other = new iterationConfig();
+        //-------------------- Iteration --------------------\\
+
         public int GlobalVariable { get; set; }
+
+        //-------------------- Database --------------------\\
+        public string dbLocation
+        { get { return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\PaymentGateway"; } set {} }
+
+        public void Dispose()
+        {
+            internalConfig.internalConfiguration.Dispose();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
     }
 }

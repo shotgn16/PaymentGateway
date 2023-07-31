@@ -3,21 +3,25 @@ using System.DirectoryServices.ActiveDirectory;
 using System.Threading.Tasks;
 using Gateway.Logger;
 using PaymentGateway.request;
-using PaymentGateway.exceptions;
 
 namespace PaymentGateway.methods
 {
     public class activeDirectory
     {
+        private static DirectoryContext context;
+
         internal static async Task<string> UserInfoType(string userName, string personalCode)
         {
             MyLogger.GetInstance().Debug("ADAttributeChecker checking values");
 
             bool attributeExists = AttributeExists().Result; string returnValue = "";
 
-            if (myqConfiguration.MyQ.reqAzureCID == 1)
+            if (internalConfig.internalConfiguration.reqAzureCID == 1)
             {
-                var result = await microsoftGraph.getUserList(myqConfiguration.MyQ.Username);
+                var result = await microsoftGraph.getUserList(internalConfig.internalConfiguration.Username);
+
+                //Disposing
+                microsoftGraph.Dispose();
 
                 //Need to return the extension attribute value. 
                 //Search by: 'Consumer Name' - ParentPay
@@ -40,6 +44,8 @@ namespace PaymentGateway.methods
                 returnValue = $"username={userName}";
             }
 
+            //Disposes of the 'Directory Context' once the method is complete
+            activeDirectory.Dispose();
             return returnValue;
         }
 
@@ -55,7 +61,7 @@ namespace PaymentGateway.methods
                 {
                     MyLogger.GetInstance().Debug("ADAttributeChecker attribute found!");
 
-                    var context = new DirectoryContext(DirectoryContextType.Forest, applicationConfiguration.Credentials.ADName);
+                    context = new DirectoryContext(DirectoryContextType.Forest, applicationConfiguration.Credentials.ADName);
 
                     MyLogger.GetInstance().Debug("ADAttributeChecker new directory context");
 
@@ -84,11 +90,16 @@ namespace PaymentGateway.methods
 
             catch (Exception ex)
             {
-                var exception = new ActiveDirectoryException(ex.Message);
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
             }
 
             return Task.FromResult(returnValue);
+        }
+
+        public static void Dispose()
+        {
+            context = null;
+            GC.Collect();
         }
     }
 }

@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
-using System.Security.Cryptography;
-using System.Text;
 using System.IO;
-using System.Data.SqlServerCe;
 using System.Data;
 using System.Collections.Generic;
 using System.Linq;
 using Gateway.Logger;
-using PaymentGateway.exceptions;
+using System.Data.SqlServerCe;
+using PaymentGateway.methods;
+using PaymentGateway.Properties;
 
 namespace PaymentGateway.data
 {
@@ -16,7 +15,7 @@ namespace PaymentGateway.data
     {
         //A static string that is used to store the connection string for the database file.
         internal static string ConnectionString { get; set; }
-        private static string dbPasswod { get; set; }
+        internal static string dbPasswod { get; set; }
 
         //The 'CreateConnection' attempts to FIRST check if the database exists by calling the 'buildDatabase' method.
         //If the database exists, a new connection is created using the connection string that will have been previously specified in the 'buildDatabase' method and the connection is returned to the user.
@@ -38,8 +37,7 @@ namespace PaymentGateway.data
 
             catch (Exception ex)
             {
-                var exception = new DatabaseBuildException(ex.Message);
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
             }
 
             MyLogger.GetInstance().Debug("Returning database connection");
@@ -49,38 +47,41 @@ namespace PaymentGateway.data
         //The 'buildDatabase' method assigns a connection string, pulling the password the user entered when the program first ran.
         //The method will then check to see if the specified database file exists within the database and if not will create the file using the connection string.
         //The method will then return true as the database has ben created. Should it fail and create an error, the try {} catch {} statement will catch this and log the error accordingly.
-        public static async Task<bool> buildDatabase(string dbPassword, bool dbExists = false)
+        public static async Task<bool> buildDatabase(string dbPassword = null, bool dbExists = false)
         {
+            if (dbPassword != null)
             dbPasswod = dbPassword;
+
+            else if (dbPassword == null)
+            dbPasswod = Settings.Default.dbPassword;
 
             try
             {
-                ConnectionString = $"DataSource=db.sdf;Password={dbPassword};File Mode=shared read";
+                if (await databaseLocation())
+                    ConnectionString = $"Data Source={internalConfig.internalConfiguration.dbLocation}\\db.sdf;Encrypt Database=True;Password={Settings.Default.dbPassword};File Mode=Exclusive;Persist Security Info=True;";
 
-                if (File.Exists("db.sdf"))
-                {
-                    dbExists = true;
-                }
-
-                else if (!File.Exists("db.sdf"))
-                {
-                    MyLogger.GetInstance().Debug("Creating database...");
-
-                    //Creating a new instance of the SqlCeEngine, in order to utilise the CreateDatabase() function.
-                    //Initializing the class inside a using statement means that it will be correctly disposed of when no longer needed, freeing up system resources.
-                    using (var engine = new SqlCeEngine(ConnectionString))
+                if (await databaseLocation())
+                    if (File.Exists($"{internalConfig.internalConfiguration.dbLocation}\\db.sdf"))
                     {
-                        engine.CreateDatabase();
+                        dbExists = true;
                     }
 
-                    dbExists = true;
-                }
+                    else if (!File.Exists($"{internalConfig.internalConfiguration.dbLocation}\\db.sdf"))
+                    {
+                        //Creating a new instance of the SqlCeEngine, in order to utilise the CreateDatabase() function.
+                        //Initializing the class inside a using statement means that it will be correctly disposed of when no longer needed, freeing up system resources.
+                        using (var engine = new SqlCeEngine(ConnectionString))
+                        {
+                            engine.CreateDatabase();
+                        }
+
+                        dbExists = true;
+                    }
             }
 
             catch (Exception ex)
             {
-                var exception = new DatabaseBuildException(ex.Message);
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
 
                 dbExists = false;
             }
@@ -88,37 +89,37 @@ namespace PaymentGateway.data
             return dbExists;
         }
 
-        //This method simply checks if the connection is valid.
-        //It does this by creating a new connection, opening it, setting a value and closing it again.
-        //Should an error be caught, the try {} catch {} block will handle this appropiately.
-        private static async Task<bool> CheckConnection()
+        //Gets the user profile location and creates a hidden folder called 'PaymentGateway' if none exists...
+        internal static async Task<bool> databaseLocation(bool returnValue = false)
         {
-            bool establishedConnection = false;
-
-            using (var connection = CreateConnection(db.dbPasswod).Result)
+            try
             {
-                try
+                DirectoryInfo directoryInfo = new DirectoryInfo(internalConfig.internalConfiguration.dbLocation);
+
+                //If directory DOES NOT exist...
+                if (!Directory.Exists(internalConfig.internalConfiguration.dbLocation))
                 {
-                    MyLogger.GetInstance().Debug("DatabaseConnection opening database connection");
-                    await connection.OpenAsync();
+                    //Creates directory...
+                    Directory.CreateDirectory(internalConfig.internalConfiguration.dbLocation);
 
-                    MyLogger.GetInstance().Debug("DatabaseConnection validating connection");
-                    establishedConnection = true;
-
-                    MyLogger.GetInstance().Debug("DatabaseConnection closng database connection");
-                    connection.Close();
+                    //Check: Directory created, does it exist now?
+                    if (Directory.Exists(internalConfig.internalConfiguration.dbLocation))
+                        returnValue = true;
                 }
 
-                catch (Exception ex)
-                {
-                    establishedConnection = false;
-
-                    var exception = new InvalidDatabaseConnection(ex.Message);
-                    MyLogger.GetInstance().Error("Error: ", exception);
-                }
-
-                return establishedConnection;
+                //Check 3: Did the directory exist in the first place?
+                else if (Directory.Exists(internalConfig.internalConfiguration.dbLocation))
+                    returnValue = true;
             }
+
+            catch (Exception ex)
+            {
+                MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
+                returnValue = false;
+            }
+
+            //Let's inform the others ;)
+            return returnValue;
         }
 
         public static async Task setupDatabase()
@@ -149,11 +150,11 @@ namespace PaymentGateway.data
                             //If no tables are found, '0' is returned and the 'executeQuery()' method is called, passing in a query to create the 'transaction' table.
                             if (reader.GetInt32(0) == 0)
                             {
-                                MyLogger.GetInstance().Debug("Table = 'transactionHistory' not found! Creating table...");
+                                MyLogger.GetInstance().Debug("Table 'transactionHistory' not found! Creating table...");
 
                                 MyLogger.GetInstance().Debug("Creating database table 'transactionHistory'");
 
-                                await executeQuery("CREATE TABLE transactionHistory (P_UserID nvarchar(50), P_TransactionID nvarchar(50), M_UserID nvarchar(50))", connection);
+                                await executeQuery("CREATE TABLE transactionHistory (P_UserID nvarchar(50), M_UserID nvarchar(50), P_TransactionID nvarchar(50), M_TransactionID nvarchar(50));", connection);
                             }
                         }
                     }
@@ -167,7 +168,7 @@ namespace PaymentGateway.data
                             //If no tables are found, '0' is returned and the 'executeQuery()' method is called, passing in a query to create the 'creditTransactions' table.
                             if (reader.GetInt32(0) == 0)
                             {
-                                MyLogger.GetInstance().Debug("Table = 'creditTransactions' not found! Creating table...");
+                                MyLogger.GetInstance().Debug("Table 'creditTransactions' not found! Creating table...");
 
                                 MyLogger.GetInstance().Debug("Creating database table 'creditTransactions'");
 
@@ -183,8 +184,7 @@ namespace PaymentGateway.data
 
                 catch (Exception ex)
                 {
-                    var exception = new QueryException(ex.Message);
-                    MyLogger.GetInstance().Error("Error: ", exception);
+                    MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
 
                     //Should the application crash, the connection is also closed off and disposed of manually, incase the application fails to properly dispose of the connection.
                     connection.Close();
@@ -201,6 +201,8 @@ namespace PaymentGateway.data
                 {
                     command.CommandText = query;
                     command.Connection = connection;
+
+                    //BUG - Crashes here when trying to create database tables
                     command.ExecuteNonQuery();
 
                     //Don't close connection - Connection is shared!
@@ -208,8 +210,7 @@ namespace PaymentGateway.data
 
                 catch (Exception ex)
                 {
-                    var exception = new QueryException(ex.Message);
-                    MyLogger.GetInstance().Error("Error: ", exception);
+                    MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
 
                     connection.Close();
                     connection.Dispose();
@@ -217,7 +218,7 @@ namespace PaymentGateway.data
             }
         }
 
-        public static async Task newTransaction(string P_UserID, string P_TtansactionID, string M_UserID)
+        public static async Task newTransaction(string P_UserID, string P_TransactionID, string M_UserID)
         {
             using (var connection = await CreateConnection(db.dbPasswod))
             {
@@ -227,10 +228,10 @@ namespace PaymentGateway.data
                 {
                     try
                     {
-                        command.CommandText = "INSERT INTO transactionHistory (P_UserID, P_TransactionID, M_UserID) VALUES (@UserID, @P_TransactionID, @M_UserID)";
+                        command.CommandText = "INSERT INTO transactionHistory (P_UserID, M_UserID, P_TransactionID) VALUES (@UserID, @M_UserID, @P_TransactionID)";
 
                         command.Parameters.AddWithValue("@UserID", P_UserID);
-                        command.Parameters.AddWithValue("@P_TransactionID", P_TtansactionID);
+                        command.Parameters.AddWithValue("@P_TransactionID", P_TransactionID);
                         command.Parameters.AddWithValue("@M_UserID", M_UserID);
 
                         command.ExecuteNonQuery();
@@ -240,8 +241,7 @@ namespace PaymentGateway.data
 
                     catch (Exception ex)
                     {
-                        var exception = new QueryException(ex.Message);
-                        MyLogger.GetInstance().Error("Error: ", exception);
+                        MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
 
                         connection.Close();
                         connection.Dispose();
@@ -261,7 +261,11 @@ namespace PaymentGateway.data
                 {
                     try
                     {
-                        command.CommandText = "SELECT * FROM transactionHistory WHERE P_UserID = '" + P_UserID + "' AND P_TransactionID = '" + P_TransactionID + "' AND M_UserID = '" + M_UserID + "'";
+                        command.CommandText = "SELECT * FROM transactionHistory WHERE P_UserID = '@P_UserID' AND P_TransactionID = '@P_TransactionID' AND M_UserID = '@M_UserID'";
+
+                        command.Parameters.AddWithValue("@P_UserID", P_UserID);
+                        command.Parameters.AddWithValue("@P_TransactionID", P_TransactionID);
+                        command.Parameters.AddWithValue("@M_UserID", M_UserID);
 
                         using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -281,8 +285,7 @@ namespace PaymentGateway.data
 
                     catch (Exception ex)
                     {
-                        var exception = new QueryException(ex.Message);
-                        MyLogger.GetInstance().Error("Error: ", exception);
+                        MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
 
                         connection.Close();
                         connection.Dispose();
@@ -293,6 +296,7 @@ namespace PaymentGateway.data
             return Task.FromResult(transactionExists).Result;
         }
 
+        //Error with this request
         public static async Task newTillBalance(string P_UserID, string UpdatedBalance, string M_UserID, DateTime TimeOfTransaction)
         {
             using (var connection = await CreateConnection(db.dbPasswod))
@@ -306,7 +310,7 @@ namespace PaymentGateway.data
                         command.CommandText = "INSERT INTO creditTransactions (P_UserID, M_UserID, UpdatedBalance, TimeOfTransaction) VALUES (@P_UserID, @M_UserID, @UpdatedBalance, @TimeOfTransaction)";
 
                         command.Parameters.AddWithValue("@P_UserID", P_UserID);
-                        command.Parameters.AddWithValue("@P_UserID", M_UserID);
+                        command.Parameters.AddWithValue("@M_UserID", M_UserID);
                         command.Parameters.AddWithValue("@UpdatedBalance", UpdatedBalance);
                         command.Parameters.AddWithValue("@TimeOfTransaction", SqlDbType.DateTime).Value = TimeOfTransaction;
 
@@ -317,8 +321,7 @@ namespace PaymentGateway.data
 
                     catch (Exception ex)
                     {
-                        var exception = new QueryException(ex.Message);
-                        MyLogger.GetInstance().Error("Error: ", exception);
+                        MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
 
                         connection.Close();
                         connection.Dispose();
@@ -327,43 +330,7 @@ namespace PaymentGateway.data
             }
         }
 
-        public static async Task<List<string>> getAddresses()
-        {
-            List<string> address = new List<string>();
-
-            using (var connection = await CreateConnection(db.dbPasswod))
-            {
-                await connection.OpenAsync();
-
-                using (SqlCeCommand command = new SqlCeCommand(null, connection))
-                {
-                    try
-                    {
-                        command.CommandText = "SELECT * FROM system";
-
-                        using (var reader = await command.ExecuteReaderAsync())
-                        {
-                            while (await reader.ReadAsync())
-                            {
-                                address.Add(reader[0].ToString());
-                            }
-                        }
-                    }
-
-                    catch (Exception ex)
-                    {
-                        var exception = new QueryException(ex.Message);
-                        MyLogger.GetInstance().Error("Error: ", exception);
-
-                        connection.Close();
-                        connection.Dispose();
-                    }
-                }
-            }
-
-            return address;
-        }
-
+        //TODO - Test this works [Command Parameters]
         public static async Task<decimal> getLatestTillBalance(string P_UserID, string M_UserID, decimal balance = 0.0M)
         {
             List<string> dt = new List<string>();
@@ -377,7 +344,10 @@ namespace PaymentGateway.data
                 {
                     try
                     {
-                        command.CommandText = "SELECT * FROM creditTransactions WHERE M_UserID = '" + P_UserID + "' AND P_UserID = '" + P_UserID + "'";
+                        command.CommandText = "SELECT * FROM creditTransactions WHERE M_UserID = '@M_UserID' AND P_UserID = '@P_UserID'";
+
+                        command.Parameters.AddWithValue("@M_UserID", M_UserID);
+                        command.Parameters.AddWithValue("@P_UserID", P_UserID);
 
                         using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -388,7 +358,7 @@ namespace PaymentGateway.data
 
                                 string newUserBalance = await parseLateatTransaction(dt, lstBalance);
                                 balance = await
-                                    DatabaseHash.decryptBalance(newUserBalance);
+                                    hash.decryptBalance(newUserBalance);
                             }
                         }
 
@@ -398,8 +368,7 @@ namespace PaymentGateway.data
 
                     catch (Exception ex)
                     {
-                        var exception = new QueryException(ex.Message);
-                        MyLogger.GetInstance().Error("Error: ", exception);
+                        MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
 
                         connection.Close();
                         connection.Dispose();
@@ -410,6 +379,7 @@ namespace PaymentGateway.data
             return balance;
         }
 
+        //This method is designed to get around some limitation that SqlCE has that restricts me from implementing 
         private static async Task<string> parseLateatTransaction(List<string> dt, List<string> balance, int pos = 0)
         {
             List<DateTime> time = new List<DateTime>();
@@ -427,71 +397,72 @@ namespace PaymentGateway.data
 
             catch (Exception ex)
             {
-                var exception = new OperationException(ex.Message);
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
             }
 
             return balance[pos];
         }
-    }
 
-    public static class DatabaseHash
-    {
-        public static async Task<char[]> initKeys(int KeyNum)
+        //@TODO: Fix statement to allow reading of data and writing one row at a time to csv method
+        internal static async Task renameDatabase()
         {
-            string[] returnValue = new string[6];
-
-            //MyQ UserID
-            returnValue[0] = "lrHvB4SBhqEqJSgI4pbw";
-
-            //ParentPay UserID
-            returnValue[1] = "joNYipgzSihArmsdxrjL";
-
-            //MyQ Access Token
-            returnValue[2] = "i73tNh514FMplj9cybSm";
-
-            //ParentPay PaymentID
-            returnValue[3] = "Gh7ZLvyi3mlV9SJxSXzX";
-
-            //N/A
-            returnValue[4] = "n6TyARAdGOIsJ0S1Ge3M";
-
-            //Database Password (for export)
-            returnValue[5] = "jfiosru_fjsoruw3vva843";
-
-            return Task.FromResult(returnValue[KeyNum].ToCharArray()).Result;
+            System.IO.File.Move(internalConfig.internalConfiguration.dbLocation + "/db.sdf", internalConfig.internalConfiguration.dbLocation + "/old_db-" + DateTime.UtcNow.ToString() + ".sdf");
         }
 
-        private static TripleDESCryptoServiceProvider GetCryproProvider(int keyNum)
+        internal static async Task getTableData()
         {
-            var md5 = new MD5CryptoServiceProvider();
-            var key = md5.ComputeHash(Encoding.UTF8.GetBytes(initKeys(keyNum).Result));
-            return new TripleDESCryptoServiceProvider() { Key = key, Mode = CipherMode.ECB, Padding = PaddingMode.PKCS7 };
-        }
+            //Check if files exist
+            await TabledataExport.buildExportFiles();
 
-        public static async Task<string> dbEncrypt(string plainString, int keyNum)
-        {
-            var data = Encoding.UTF8.GetBytes(plainString);
-            var tripleDes = GetCryproProvider(keyNum);
-            var transform = tripleDes.CreateEncryptor();
-            var resultsByteArray = transform.TransformFinalBlock(data, 0, data.Length);
-            return Convert.ToBase64String(resultsByteArray);
-        }
+            MyLogger.GetInstance().Info("Retrieving table data...");
 
-        public static async Task<string> dbDecrypt(string encryptedString, int keyNum)
-        {
-            var data = Convert.FromBase64String(encryptedString);
-            var tripleDes = GetCryproProvider(keyNum);
-            var transform = tripleDes.CreateDecryptor();
-            var resultsByteArray = transform.TransformFinalBlock(data, 0, data.Length);
-            return Encoding.UTF8.GetString(resultsByteArray);
-        }
-        public static async Task<decimal> decryptBalance(string enryptedBalance)
-        {
-            string tmp = await DatabaseHash.dbDecrypt(enryptedBalance.ToString(), 4);
-            decimal balance = Convert.ToDecimal(tmp);
+            List<string> Values = new List<string>();
 
-            return balance;
+            using (var connection = await CreateConnection(db.dbPasswod))
+            {
+                await connection.OpenAsync();
+
+                try
+                {
+                    var getTable1Data = new SqlCeCommand("SELECT * FROM transactionHistory", connection);
+
+                    var getTable2Data = new SqlCeCommand("SELECT * FROM creditTransactions", connection);
+
+                    using (var reader = await getTable1Data.ExecuteReaderAsync())
+                    {
+                        using (var sw = new StreamWriter(fileHandler.openFile1))
+                        {
+                            sw.WriteLine("P_UserID; P_TransactionID; M_UserID");
+
+                            while (await reader.ReadAsync())
+                            {
+                                sw.WriteLine("{0},{1},{2}", reader["P_UserID"], reader["P_TransactionID"], reader["M_UserID"]);
+                            }
+                        }
+                    }
+
+                    using (var reader = await getTable2Data.ExecuteReaderAsync())
+                    {
+                        using (var sw = new StreamWriter(fileHandler.openFile2))
+                        {
+                            sw.WriteLine("P_UserID; M_UserID; UpdatedBalance; TimeOfTransaction");
+
+                            while (await reader.ReadAsync())
+                            {
+                                sw.WriteLine("{0},{1},{2},{3}", reader["P_UserID"], reader["M_UserID"], reader["UpdatedBalance"], reader["TimeOfTransaction"]);
+                            }
+                        }
+                    }
+                }
+
+                catch (Exception ex)
+                {
+                    MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
+                }
+
+                //Closes the OpenFiles to clear memory :)
+                fileHandler.Dispose();
+            }
         }
     }
 }

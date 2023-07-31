@@ -164,8 +164,8 @@ input::placeholder {
                             </thead>
                             <tbody>
                               <tr class="is-selected">
-                                <td><a href="https://dotnet.microsoft.com/en-us/download/dotnet-framework/net472">.NET Framework</a></td>
-                                <td>v4.7.2</td>
+                                <td><a href="https://dotnet.microsoft.com/en-us/download/dotnet-framework/net48">.NET Framework</a></td>
+                                <td>v4.8</td>
                               </tr>
                               <tr>
                                 <td><a href="https://flurl.dev/">Flurl</a></td>
@@ -246,7 +246,7 @@ input::placeholder {
                                     <li>You have added your ParentPay users to <strong>MyQ local credit account</strong> or <strong>Central credit account</strong></li>
                                     <li>Your MyQ server needs to meet the <a href="https://docs.myq-solution.com/en/print-server/10.1/system-requirements">minimum requirements</a></li>
                                     <li>You have installed the MyQ Certificate on the machine your server</li>
-                                    <li><strong>Your PC has NET Framework 4.7.2 or later installed</strong></li>
+                                    <li><strong>Your PC has NET Framework 4.8 or later installed</strong></li>
                                   </ul>
 
                                   <p>The following are a set of requirements that are not required for the use of the gateway but may be so depending upon your configuration.</p>
@@ -337,18 +337,18 @@ input::placeholder {
                                   <div class="content article-body">
                                     <p class="subtitle is-4">TLS Versions</p>
                                       <p>Due to the various uses of different TLS protocols in todays IT enviroments, the application will support the use of various security protocols, including...</p>
-                                      <ul>
-                                        <li>TLS 1.0</li>
-                                        <li>TLS 1.1</li>
-                                        <li>TLS 1.2</li>
-                                        <li>TLS 1.3 <a href="https://dotnet.microsoft.com/en-us/download/dotnet-framework/net48">(Not Supported - Please use .NET 4.8 version)</a></li>
-                                      </ul><br>
+                                        <ul>
+                                          <li>TLS 1.0</li>
+                                          <li>TLS 1.1</li>
+                                          <li>TLS 1.2</li>
+                                          <li>TLS 1.3</li>
+                                        </ul><br>
 
-                                      <p>You can configure the application to use your chosen TLS protocol by setting it in the <em>config.json</em> file, using the <em>TLSVersion</em> variable.<br><br>
-                                      
-                                        Please see below for an example configuration of the TLSVersion variable for the configuration file.
+                                        <p>You can configure the application to use your chosen TLS protocol by setting it in the <em>config.json</em> file, using the <em>TLSVersion</em> variable.<br><br>
                                         
-                                    <br><strong>Example:</strong> TLS 1.2 > TLSVersion: 1.2</p>
+                                          Please see below for an example configuration of the TLSVersion variable for the configuration file.
+                                          
+                                    <br><strong>Example:</strong> TLS 1.3 > TLSVersion: 1.3</p>
 
                                     <p class="subtitle is-4">Log-to-Email</p>
                                       <p>The application also offers Log-to-Email functionality. 

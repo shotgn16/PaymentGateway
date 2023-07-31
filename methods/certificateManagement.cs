@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Management.Instrumentation;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Gateway.Logger;
 using Org.BouncyCastle.Security.Certificates;
-using PaymentGateway.exceptions;
 
 namespace PaymentGateway.methods
 {
     public class certificateManagement
     {
-        public static async Task StringToCertificate(string cert)
+        private static X509Store store;
+        public static async Task StringToCertificate(string cert, string distinguishedName = null)
         {
             MyLogger.GetInstance().Debug("SelfCert parsing certificate string...");
 
@@ -23,7 +24,7 @@ namespace PaymentGateway.methods
             await isInstalled(new X509Certificate2(rawData));
         }
 
-        private static async Task isInstalled(X509Certificate2 cert, bool isValidCert = false)
+        private static async Task isInstalled(X509Certificate2 cert, bool isValidCert = false, string distinguishedName = null)
         {
             MyLogger.GetInstance().Debug("SelfCert checking if certificate already exists");
 
@@ -31,11 +32,11 @@ namespace PaymentGateway.methods
             {
                 MyLogger.GetInstance().Debug("SelfCert opening certificate store");
 
-                X509Store store = new X509Store(StoreName.Root, StoreLocation.LocalMachine);
+                store = new X509Store(StoreName.Root, StoreLocation.LocalMachine);
                 store.Open(OpenFlags.ReadOnly);
 
                 MyLogger.GetInstance().Debug("SelfCert locating certificate");
-                var certificates = store.Certificates.Find(X509FindType.FindByIssuerDistinguishedName, CustomDistinguishedName().Result, false);
+                var certificates = store.Certificates.Find(X509FindType.FindByIssuerDistinguishedName, CustomDistinguishedName(distinguishedName).Result, false);
 
                 applicationConfiguration.Credentials.Certificate_DistinguishedName = "CN=MyQ Certificate Authority";
 
@@ -47,14 +48,13 @@ namespace PaymentGateway.methods
 
                         if (!isValidCert)
                         {
-                            var exception = new exceptions.CertificateException("Certificate validation failed... Invalid certificate detected!");
-                            MyLogger.GetInstance().Error("Error: ", exception);
+                            MyLogger.GetInstance().Error("Error: ", "Certificate validation failed... Invalid certificate detected!");
                         }
                     }
                 }
 
                 if (isValidCert) {
-                    MyLogger.GetInstance().Warning("Certificate valid!");
+                    MyLogger.GetInstance().Info("Certificate Valid!");
                 }
 
                 if (certificates.Count > 0)
@@ -73,8 +73,7 @@ namespace PaymentGateway.methods
 
             catch (Exception ex)
             {
-                var excepton = new exceptions.CertificateException(ex.Message);
-                MyLogger.GetInstance().Error("Error: ", excepton);
+                MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
             }
         }
 
@@ -101,26 +100,27 @@ namespace PaymentGateway.methods
             //Needs to be run as admin!
             try
             {
-                X509Store store = new X509Store(StoreName.Root, StoreLocation.LocalMachine);
-                store.Open(OpenFlags.ReadWrite);
-                store.Add(cert);
-                store.Close();
+                using (var store = new X509Store(StoreName.Root, StoreLocation.LocalMachine))
+                {
+                    store.Open(OpenFlags.ReadWrite);
+                    store.Add(cert);
+                    store.Close();
+                }
 
                 MyLogger.GetInstance().Info("Certificate Installed!");
             }
 
             catch (Exception ex)
             {
-                var exception = new exceptions.CertificateException("Please ensure you run the Gateway with Administrator rights to be able to install the MyQ Root certificate");
-                MyLogger.GetInstance().Error("Error: ", exception);
+                MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
             }
         }
 
-        public static async Task<string> CustomDistinguishedName(string returnValue = "")
+        public static async Task<string> CustomDistinguishedName(string returnValue = "", string distinguishedName = null)
         {
-            if (!string.IsNullOrEmpty(applicationConfiguration.Credentials.Certificate_DistinguishedName))
+            if (!string.IsNullOrEmpty(distinguishedName))
             {
-                returnValue = applicationConfiguration.Credentials.Certificate_DistinguishedName;
+                returnValue = distinguishedName;
             }
             else
             {
@@ -128,6 +128,12 @@ namespace PaymentGateway.methods
             }
 
             return Task.FromResult(returnValue).Result;
+        }
+
+        public static void Dispose()
+        {
+            store.Dispose();
+            GC.Collect();
         }
     }
 }

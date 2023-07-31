@@ -5,5 +5,14 @@
     <Setting Name="dbPassword" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="myqTimer" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">900000</Value>
+    </Setting>
+    <Setting Name="parentpayTimer" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">28800000</Value>
+    </Setting>
+    <Setting Name="tokenTimer" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">1500000</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

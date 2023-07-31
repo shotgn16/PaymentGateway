@@ -9,6 +9,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Payment Gateway")]
 [assembly: AssemblyDescription("ParentPay and MyQ Payment Gateway")]
 [assembly: AssemblyCompany("D13 Solutions Ltd")]
+[assembly: AssemblyTrademark("Jesus Christ is King!")]
+[assembly: InternalsVisibleTo("Project_Testing")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
 // to COM components.  If you need to access a type in this assembly from

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Activities.Statements;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -10,81 +11,44 @@ using Gateway.Logger;
 using PaymentGateway.methods;
 using PaymentGateway.methods.timers;
 using PaymentGateway.request.response;
-using PaymentGateway.exceptions;
 
 namespace PaymentGateway.request
 {
-    public class soap
+    public class soap : IDisposable
     {
-        internal static async Task<object> httpSoap(string op, object returnValue = null)
+        internal static async Task<string> HandleRequestOperations(string operation, string returnValue = null)
         {
+            bool isWhitelisted = false;
+            string IPAddress;
+
             try
             {
-                MyLogger.GetInstance().Debug("Preparing new request, {0}", op);
-                var soapString = await ConstructSoapRequest(op);
+                // (1) - Uses the Take's the FQDN and converts it to an IP address and stores it in the 'IPAddress' value.
+                IPAddress = await networkManagement.HostToIp(await securityManagement.GetDomain(internalConfig.internalConfiguration.ParentPayRequestURL + operation));
+                
+                // (2) - Uses the 'isWhitelisted' value check if the IP address is already whitelisted
+                if (IPAddress != null) isWhitelisted = await securityManagement.WhitelistAddress(IPAddress);
 
-                MyLogger.GetInstance().Debug("Assigning security protocols and request headers...");
+                // (3) - If it's NOT whitelisted, throws an 'AccessViolationException'
+                if (!isWhitelisted) throw new AccessViolationException("Error 404: Address [" + applicationConfiguration.Credentials.ServerAddress + "] not whitelisted!");
 
-                var content = new StringContent(soapString, Encoding.UTF8, "text/xml");
-                content.Headers.Add("Application", "MyQ X & ParentPay Payment Gateway, v1.0");
-                content.Headers.Add("Installation", applicationConfiguration.Credentials.InstallationName);
-
-                MyLogger.GetInstance().Debug("Setting SOAPAction...");
-
-                if (op == "handleSimplePaymentReport")
-                {
-                    content.Headers.Add("SOAPAction", "http://www.pay24-7.com/P247WS/PubMethods/handleSimplePaymentReport");
-
-                    bool whitelistedHost = await securityManagement.WhitelistAddress(parentpayConfiguration.ParentPay.handleSimplePaymentReport);
-                    if (whitelistedHost == false)
-                    {
-                        var address = parentpayConfiguration.ParentPay.handleSimplePaymentReport;
-                        if (address.Contains(".com")) { address = await securityManagement.GetDomain(address); } address = networkManagement.HostToIp(address).Result;
-
-                        MyLogger.GetInstance().Error("Error 404: Address: [" + address + "] not whitelisted!");
-                    }
-                }
-
-                else if (op == "handleMessageUpdateRequest")
-                {
-                    content.Headers.Add("SOAPAction",
-                        "http://www.pay24-7.com/P247WS/PubMethods/handleMessageUpdateRequest");
-
-                    MyLogger.GetInstance().Debug("Verifying address whitelisted");
-
-                    bool whitelistedHost = await securityManagement.WhitelistAddress(parentpayConfiguration.ParentPay.handleMessageUpdateRequest);
-                    if (whitelistedHost == false)
-                    {
-                        var address = parentpayConfiguration.ParentPay.handleMessageUpdateRequest;
-                        if (address.Contains(".com")) { address = await securityManagement.GetDomain(address); } address = networkManagement.HostToIp(address).Result;
-
-                        MyLogger.GetInstance().Error("Error 404: Address: [" + address + "] not whitelisted!");
-                    }
-                }
-
-                MyLogger.GetInstance().Debug("Sending request...");
-
-                using (var response = await customClient._client.PostAsync("https://www.parentpay.com/P247WS/PubMethods.asmx", content))
-                {
-                    MyLogger.GetInstance().Debug("Handling API response");
-                    returnValue = await handleResponse(response, op);
-                }
+                // (4) - If the address IS whitelisted, will return the FQDN + Operation required for 'SOAPAction' header.
+                else if (isWhitelisted) returnValue = "http://www.pay24-7.com/P247WS/PubMethods/" + operation;
             }
 
             catch (Exception ex)
             {
-                MyLogger.GetInstance().Error("Errror: " + ex.ToString());
+                MyLogger.GetInstance().Error(null, ex);
             }
 
             return returnValue;
         }
 
-
-        private static async Task<object> handleResponse(HttpResponseMessage response, string operation, object returnVariable = null)
+        internal async Task<object> handleResponse(string responseString, string operation, object returnVariable = null)
         {
             try
             {
-                var r = await parseResponse(response.Content.ReadAsStringAsync().Result, operation);
+                var r = await parseResponse(responseString, operation);
 
                 if (operation == "handleSimplePaymentReport")
                 {
@@ -99,7 +63,7 @@ namespace PaymentGateway.request
 
             catch (Exception ex)
             {
-                MyLogger.GetInstance().Error("Error: ", ex);
+                MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
             }
 
             return Task.FromResult(returnVariable).Result;
@@ -111,17 +75,17 @@ namespace PaymentGateway.request
             {
                 foreach (xmlUtility.PaymentVO User in paymentReport.PaymentArray)
                 {
-                    await restUtility.rootParse(await flurlRest.getUserInfo(User.ConsumerName, User.Identifier.ToString()).Result.ResponseMessage.Content.ReadAsStringAsync());
+                    await restUtility.rootParse(await flurlRest.getUserInfo(User.ConsumerName, User.Identifier.ToString()));
 
-                    myqConfiguration.MyQ.UserNewBalance = await data.db.getLatestTillBalance(await data.DatabaseHash.dbEncrypt(User.Identifier.ToString(), 1), await data.DatabaseHash.dbEncrypt(myqConfiguration.MyQ.UserID, 0));
+                    internalConfig.internalConfiguration.UserNewBalance = await data.db.getLatestTillBalance(await data.hash.dbEncrypt(User.Identifier.ToString(), 1), await data.hash.dbEncrypt(internalConfig.internalConfiguration.UserID, 0));
 
-                    returnValue = returnValue + "<string>" + "Print Credits: £" + myqConfiguration.MyQ.UserNewBalance + "</string>";
+                    returnValue = returnValue + "<string>" + "Print Credits: £" + internalConfig.internalConfiguration.UserNewBalance + "</string>";
                 }
             }
 
             catch (Exception ex)
             {
-                MyLogger.GetInstance().Error("Error: ", ex);
+                MyLogger.GetInstance().Error("Error: ", "Unable to prepare request for till balance update! Please try again later");
             }
 
             return returnValue;
@@ -139,13 +103,13 @@ namespace PaymentGateway.request
 
             catch (Exception ex)
             {
-                MyLogger.GetInstance().Error("Error: ", ex);
+                MyLogger.GetInstance().Error("Error: ", "Invalid data detected! Please try again later, if the issue persists please contact support");
             }
 
             return returnValue;
         }
 
-        private static async Task<string> ConstructSoapRequest(string op)
+        internal static async Task<string> ConstructSoapRequest(string op)
         {
             MyLogger.GetInstance().Debug("Creating request body");
 
@@ -218,7 +182,6 @@ namespace PaymentGateway.request
 
             catch (Exception ex)
             {
-                var exception = new DeserializationException(ex.Message);
                 MyLogger.GetInstance().Error("Error: ", ex);
             }
             return Task.FromResult(returnValue);
@@ -249,15 +212,14 @@ namespace PaymentGateway.request
 
                     else if (result.SuccessState == 1 || result.SuccessState == 2)
                     {
-                        var exception = new RequestException("Failed to download payment report. Will try again soon...");
-                        MyLogger.GetInstance().Warning("Warning: " + exception.Message, exception);
+                        MyLogger.GetInstance().Warning("Warning: ", "Failed to download payment report. Will try again soon...");
                     }
                 }
             }
 
             catch (Exception ex)
             {
-                MyLogger.GetInstance().Error("Error: ", ex);
+                MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace); 
             }
 
             return result;
@@ -288,18 +250,22 @@ namespace PaymentGateway.request
 
                     else if (result.SuccessState == 1 || result.SuccessState == 2)
                     {
-                        var exception = new RequestException("failed to update till balance. Will try again soon...");
-                        MyLogger.GetInstance().Error("Error: ", exception);
+                        MyLogger.GetInstance().Warning("Warning: ", "Failed to update till balance. Will try again soon...");
                     }
                 }
             }
 
             catch (Exception ex)
             {
-                MyLogger.GetInstance().Error("Error: ", ex);
+                MyLogger.GetInstance().Error("Error: " + ex.Message, ex.StackTrace);
             }
 
             return result;
+        }
+
+        public void Dispose()
+        {
+            GC.Collect();
         }
     }
 }
