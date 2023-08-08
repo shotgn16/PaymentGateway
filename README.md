@@ -6,7 +6,17 @@
 5. [FAQs](#faqs)
 ### General Info
 ***
-Write down general information about your project. It is a good idea to always put a project status in the readme file. This is where you can add it. 
+As part of my BCS L4 Software Developer Apprenticeship I was tasked with undertaking the design and creation of a business project to cover a selection of Knowledge, Skills and Behaviours (KSBs) contributing to the progression of the apprenticeship.
+
+The project in question, was based around a task to design a software application capable of syncing user credits from ParentPay, a school-focused financial management system to MyQ X, an on-premise print-management solution designed to revolutionise printing in the workplace and school environment.
+
+The development of the project lasted 2 years, with many revisions and amendments over time. The project was designed in Microsoft .NET Framework using the C# programming language. Implementing various in-house and third-party libraries, the application focuses on a self-service approach and uses a password protected SQL Compact v4 database, which is handled entirely by the application code. 
+
+The application uses a global approach for the HTTP Client with any and all API calls, integrating a HTTP Wrapper and providing bespoke validation methods for each API endpoint used within the system.
+
+Due to customer security requirements the application was configured to default to TLS 1.2 or 1.3 for any and all external API calls, throwing an error if a call is not secure. Should a customer wish to overwrite this and use older protocols such as TLS 1.1, 1.0, an option was provided in the configuration file provided. 
+
+The system would also use a multi-option user-sync system to search for a user in MyQ X by either username, through their Active Directory user or by syncing with Azure Active Directory, also known as Microsoft Graph. 
 ### Screenshot
 ![Image text](https://www.myq-solution.com/themes/myq/img/vector/logo-myq.svg?v=230206142735)
 ## Technologies
