@@ -1,3 +1,4 @@
+![Image text](https://www.myq-solution.com/themes/myq/img/vector/logo-myq.svg?v=230206142735)
 ## Table of Contents
 1. [General Info](#general-info)
 2. [Technologies](#technologies)
@@ -17,8 +18,6 @@ The application uses a global approach for the HTTP Client with any and all API 
 Due to customer security requirements the application was configured to default to TLS 1.2 or 1.3 for any and all external API calls, throwing an error if a call is not secure. Should a customer wish to overwrite this and use older protocols such as TLS 1.1, 1.0, an option was provided in the configuration file provided. 
 
 The system would also use a multi-option user-sync system to search for a user in MyQ X by either username, through their Active Directory user or by syncing with Azure Active Directory, also known as Microsoft Graph. 
-### Screenshot
-![Image text](https://www.myq-solution.com/themes/myq/img/vector/logo-myq.svg?v=230206142735)
 ## Technologies
 ***
 A list of technologies used within the project:
