@@ -3,8 +3,8 @@
 
 #define MyAppName "ParentPay/MyQ Payment Gateway"
 #define MyAppVersion "1.0.624.1"
-#define MyAppPublisher "D13 Solutions"
-#define MyAppURL "http://d13solutions.co.uk/"
+#define MyAppPublisher "COMPANY_NAME"
+#define MyAppURL "COMPANY_URL"
 #define MyAppExeName "PaymentGateway.exe"
 #define MyAppAssocName MyAppName + "Payment Gateway"
 #define MyAppAssocExt ""
