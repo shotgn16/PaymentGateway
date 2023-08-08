@@ -63,10 +63,6 @@ Notes
 * Transaction tracking - Database integration
 * Updatable address whitelisting
 * Generate support file upon crash
-
-## Coming Soon
-***
-* Licensing
 ## FAQs
 ***
 A list of frequently asked questions
