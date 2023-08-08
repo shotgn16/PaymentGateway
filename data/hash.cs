@@ -14,22 +14,22 @@ namespace PaymentGateway.data
             string[] returnValue = new string[6];
 
             //MyQ UserID
-            returnValue[0] = "lrHvB4SBhqEqJSgI4pbw";
+            returnValue[0] = "HASH_STRING_HERE";
 
             //ParentPay UserID
-            returnValue[1] = "joNYipgzSihArmsdxrjL";
+            returnValue[1] = "HASH_STRING_HERE";
 
             //MyQ Access Token
-            returnValue[2] = "i73tNh514FMplj9cybSm";
+            returnValue[2] = "HASH_STRING_HERE";
 
             //ParentPay PaymentID
-            returnValue[3] = "Gh7ZLvyi3mlV9SJxSXzX";
+            returnValue[3] = "HASH_STRING_HERE";
 
             //UpdatedBalance
-            returnValue[4] = "n6TyARAdGOIsJ0S1Ge3M";
+            returnValue[4] = "HASH_STRING_HERE";
 
             //Database Password (for export)
-            returnValue[5] = "jfiosru_fjsoruw3vva843";
+            returnValue[5] = "HASH_STRING_HERE";
 
             return Task.FromResult(returnValue[KeyNum].ToCharArray()).Result;
         }
